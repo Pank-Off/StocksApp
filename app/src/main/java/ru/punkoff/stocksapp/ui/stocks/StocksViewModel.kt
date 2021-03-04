@@ -6,11 +6,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.model.retrofit.IApiHelper
+import ru.punkoff.stocksapp.model.retrofit.StockApi
 import ru.punkoff.stocksapp.model.retrofit.StockExample
 import ru.punkoff.stocksapp.ui.base.BaseViewModel
 
-class StocksViewModel(private val apiHelper: IApiHelper) : BaseViewModel() {
+class StocksViewModel(private val api: StockApi) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
     private fun createList() {
@@ -26,7 +26,7 @@ class StocksViewModel(private val apiHelper: IApiHelper) : BaseViewModel() {
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
             val response: Response<List<StockExample>> =
-                apiHelper.getStocksApi().getRequest("US").execute()
+                api.getRequest("US").execute()
             if (response.isSuccessful && response.body() != null) run {
                 createList()
                 val json: List<StockExample>? = response.body()
