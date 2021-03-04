@@ -1,4 +1,4 @@
-package ru.punkoff.stocksapp.ui
+package ru.punkoff.stocksapp.ui.favourite
 
 import android.os.Bundle
 import android.view.LayoutInflater

@@ -1,8 +1,9 @@
-package ru.punkoff.stocksapp.ui
+package ru.punkoff.stocksapp.ui.main
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import ru.punkoff.stocksapp.ui.favourite.FavouriteFragment
 import ru.punkoff.stocksapp.ui.stocks.StocksFragment
 
 class MyPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
