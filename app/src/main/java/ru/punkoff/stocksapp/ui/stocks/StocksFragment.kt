@@ -45,6 +45,8 @@ class StocksFragment : Fragment() {
                 StocksViewState.EMPTY -> Toast.makeText(context, "EMPTY", Toast.LENGTH_SHORT).show()
             }
         }
+
+        stocksViewModel.getRequest()
     }
 
     override fun onDestroyView() {
