@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">StocksApp</string>
+    <string name="stocks">Stocks</string>
+    <string name="favourite">Favourite</string>
+</resources>
