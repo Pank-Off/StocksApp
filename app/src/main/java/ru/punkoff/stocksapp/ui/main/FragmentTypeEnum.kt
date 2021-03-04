@@ -1,4 +1,4 @@
-package ru.punkoff.stocksapp.ui
+package ru.punkoff.stocksapp.ui.main
 
 enum class FragmentTypeEnum {
     STOCKS, FAVOURITE
