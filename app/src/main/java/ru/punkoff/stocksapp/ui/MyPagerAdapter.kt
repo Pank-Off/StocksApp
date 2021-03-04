@@ -1,29 +1,30 @@
 package ru.punkoff.stocksapp.ui
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import ru.punkoff.stocksapp.ui.stocks.StocksFragment
 
-class MyPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+class MyPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 
-    override fun getItem(position: Int): Fragment {
-        return when (position) {
-            0 -> {
-                StocksFragment()
-            }
-            else -> FavouriteFragment()
+    override fun createFragment(position: Int): Fragment {
+        return when (FragmentTypeEnum.values()[getItemViewType(position)]) {
+            FragmentTypeEnum.STOCKS -> StocksFragment()
+            FragmentTypeEnum.FAVOURITE -> FavouriteFragment()
         }
     }
 
-    override fun getCount(): Int {
-        return 2
+    override fun getItemViewType(position: Int): Int {
+        return if (position == 0) {
+            FragmentTypeEnum.STOCKS.ordinal
+        } else {
+            FragmentTypeEnum.FAVOURITE.ordinal
+        }
     }
 
-    override fun getPageTitle(position: Int): CharSequence {
-        return when (position) {
-            0 -> "Stocks"
-            else -> "Favourite"
-        }
+    override fun getItemCount(): Int = CARD_ITEM_SIZE
+
+    companion object {
+        private const val CARD_ITEM_SIZE = 2
     }
 }
