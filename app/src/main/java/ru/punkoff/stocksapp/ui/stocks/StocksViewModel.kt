@@ -54,7 +54,7 @@ class StocksViewModel(private val api: StockApi) : BaseViewModel() {
     private fun getStocks() {
         val response: Response<List<StockSymbol>> =
             api.getStocks("US").execute()
-        if (response.isSuccessful && response.body() != null) run {
+        if (response.isSuccessful && response.body() != null) {
             val json: List<StockSymbol>? = response.body()
             if (json != null) {
                 Log.d(javaClass.simpleName, "jsonSize: ${json.size}")
@@ -66,7 +66,7 @@ class StocksViewModel(private val api: StockApi) : BaseViewModel() {
     private fun getLogo(symbol: String): StockLogo {
         val response: Response<StockLogo> =
             api.getLogo(symbol).execute()
-        if (response.isSuccessful && response.body() != null) run {
+        if (response.isSuccessful && response.body() != null) {
             val json: StockLogo? = response.body()
             if (json != null) {
                 Log.d(javaClass.simpleName, "LOGO: $json")
