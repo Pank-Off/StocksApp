@@ -6,10 +6,22 @@ import retrofit2.http.Query
 
 interface StockApi {
     @GET("stock/symbol?")
-    fun getRequest(
+    fun getStocks(
         @Query("exchange") exchange: String,
         @Query("token") token: String = KEY
-    ): Call<List<StockExample>>
+    ): Call<List<StockSymbol>>
+
+    @GET("stock/profile2?")
+    fun getLogo(
+        @Query("symbol") symbol: String,
+        @Query("token") token: String = KEY
+    ): Call<StockLogo>
+
+    @GET("quote?")
+    fun getPrice(
+        @Query("symbol") symbol: String,
+        @Query("token") token: String = KEY
+    ): Call<StockPrice>
 
     companion object {
         private const val KEY = "c10fsj748v6oijd8e5gg"

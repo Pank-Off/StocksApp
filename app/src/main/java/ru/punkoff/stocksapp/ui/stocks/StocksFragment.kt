@@ -22,27 +22,31 @@ class StocksFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = StocksFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adapter.attachListener {
-            Toast.makeText(context, it.ticket, Toast.LENGTH_SHORT).show()
+        adapter.attachListener { item, position ->
+            Toast.makeText(context, position.toString(), Toast.LENGTH_SHORT).show()
         }
         with(binding) {
             listStocks.adapter = adapter
             listStocks.layoutManager = LinearLayoutManager(context)
-        }
 
-        stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
-            when (it) {
-                is StocksViewState.Value -> adapter.submitList(it.stocks)
-                StocksViewState.Loading -> Toast.makeText(context, "Loading", Toast.LENGTH_SHORT)
-                    .show()
-                StocksViewState.EMPTY -> Toast.makeText(context, "EMPTY", Toast.LENGTH_SHORT).show()
+
+            stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
+                when (it) {
+                    is StocksViewState.Value -> {
+                        adapter.submitList(it.stocks)
+                        loadingBar.visibility = View.INVISIBLE
+                    }
+                    StocksViewState.Loading -> loadingBar.visibility = View.VISIBLE
+                    StocksViewState.EMPTY -> Toast.makeText(context, "EMPTY", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
 
