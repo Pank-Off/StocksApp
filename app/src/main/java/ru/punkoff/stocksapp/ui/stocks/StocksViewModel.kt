@@ -6,16 +6,17 @@ import kotlinx.coroutines.*
 import retrofit2.Response
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.model.retrofit.*
+import ru.punkoff.stocksapp.model.room.StockDao
 import ru.punkoff.stocksapp.ui.base.BaseViewModel
 import kotlin.math.floor
 
-class StocksViewModel(private val api: StockApi) : BaseViewModel() {
+class StocksViewModel(private val api: StockApi, private val stockDao: StockDao) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
     val stocks = mutableListOf<Stock>()
     private fun createList(json: List<StockSymbol>) {
         cancelJob()
         runBlocking {
-            val jobs: List<Job> = (1..100).map {
+            val jobs: List<Job> = (1..20).map {
                 viewModelCoroutineScope.launch(Dispatchers.IO) {
                     getQuote(json[it])
                 }
@@ -24,6 +25,12 @@ class StocksViewModel(private val api: StockApi) : BaseViewModel() {
             jobs.joinAll()
             Log.d(javaClass.simpleName, "runBlocking:After")
             stocksLiveData.postValue(StocksViewState.Value(stocks))
+        }
+    }
+
+    fun saveToDB(stock: Stock) {
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
+            stockDao.insert(stock)
         }
     }
 
@@ -90,7 +97,6 @@ class StocksViewModel(private val api: StockApi) : BaseViewModel() {
         Log.d(javaClass.simpleName, "PRICE Symbol outer json: $symbol")
         return StockPrice(0.0, 0.0)
     }
-
 
     fun observeViewState() = stocksLiveData
 }

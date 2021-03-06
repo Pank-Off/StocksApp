@@ -38,6 +38,12 @@ class StocksFragment : Fragment() {
         adapter.attachListener { item, position ->
             Toast.makeText(context, position.toString(), Toast.LENGTH_SHORT).show()
         }
+
+        adapter.attachSaveListener { stock ->
+            Log.d(javaClass.simpleName, "StockToInsert $stock")
+            stocksViewModel.saveToDB(stock)
+        }
+
         with(binding) {
             listStocks.adapter = adapter
             listStocks.layoutManager = LinearLayoutManager(context)
@@ -53,7 +59,6 @@ class StocksFragment : Fragment() {
                 }
             }
         }
-
         stocksViewModel.getRequest()
     }
 
