@@ -51,22 +51,22 @@ class StocksFragment : Fragment() {
                 when (it) {
                     is StocksViewState.Value -> {
                         adapter.submitList(it.stocks)
+                        adapter.filter.filter(searchView.query)
                         loadingBar.visibility = View.INVISIBLE
                     }
-                    StocksViewState.Loading -> loadingBar.visibility = View.VISIBLE
-                    StocksViewState.EMPTY -> Toast.makeText(context, "EMPTY", Toast.LENGTH_SHORT)
-                        .show()
+                    StocksViewState.Loading -> {
+                        loadingBar.visibility = View.VISIBLE
+                    }
+                    StocksViewState.EMPTY -> Unit
                 }
             }
         }
-        stocksViewModel.getRequest()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
         inflater.inflate(R.menu.main, menu)
         val searchItem: MenuItem = menu.findItem(R.id.search)
-        // Associate searchable configuration with the SearchView
         val searchManager =
             requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchView = searchItem.actionView as SearchView
@@ -75,6 +75,7 @@ class StocksFragment : Fragment() {
             override fun onQueryTextSubmit(query: String): Boolean {
                 Log.i("onQueryTextSubmit", query)
                 adapter.filter.filter(query)
+                stocksViewModel.getStockBySymbol(query)
                 Log.i("ItemCount()", adapter.itemCount.toString())
                 return true
             }
