@@ -7,13 +7,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
+import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ItemStockBinding
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.utils.GlideLoader
+import ru.punkoff.stocksapp.utils.PicassoLoader
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -30,10 +32,15 @@ val DIFF_UTIL: DiffUtil.ItemCallback<Stock> = object : DiffUtil.ItemCallback<Sto
 class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UTIL), Filterable {
 
     private var firstStart = true
-    private lateinit var listener: OnStockClickListener
+    private lateinit var onStockListener: OnStockClickListener
+    private lateinit var onStarListener: OnStarClickListener
     private lateinit var stockListFiltered: List<Stock>
     fun attachListener(listener: OnStockClickListener) {
-        this.listener = listener
+        onStockListener = listener
+    }
+
+    fun attachSaveListener(listener: OnStarClickListener) {
+        onStarListener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StocksViewHolder {
@@ -62,10 +69,25 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UT
 
         private lateinit var currentStock: Stock
         private var currentPosition: Int = 0
-        private val clickListener: View.OnClickListener = View.OnClickListener {
-            listener.onClick(currentStock, currentPosition)
+        private val stockClickListener: View.OnClickListener = View.OnClickListener {
+            onStockListener.onClick(currentStock, currentPosition)
         }
 
+        private val starClickListener: View.OnClickListener = View.OnClickListener {
+            if (!isEnabledStar) {
+                isEnabledStar = true
+                favourite.background =
+                    ContextCompat.getDrawable(favourite.context, android.R.drawable.star_on)
+            } else {
+                isEnabledStar = false
+                favourite.background =
+                    ContextCompat.getDrawable(favourite.context, android.R.drawable.star_off)
+            }
+            onStarListener.onClick(currentStock)
+        }
+        private var isEnabledStar = false
+
+        private val favourite = binding.root.findViewById<ImageView>(R.id.favorite)
         fun bind(currentItem: Stock, position: Int) {
             currentPosition = position
             currentStock = currentItem
@@ -79,11 +101,16 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UT
                 }
                 if (position % 2 == 0) {
                     root.backgroundTintList =
-                        root.resources.getColorStateList(R.color.white, null)
+                        ContextCompat.getColorStateList(root.context, R.color.white)
                 }
-                GlideLoader.loadImage(imageView = logo, url = currentItem.logo)
-                root.setOnClickListener(clickListener)
+
+                PicassoLoader.loadImage(imageView = logo, url = currentItem.logo)
+                root.setOnClickListener(stockClickListener)
             }
+        }
+
+        init {
+            favourite.setOnClickListener(starClickListener)
         }
     }
 

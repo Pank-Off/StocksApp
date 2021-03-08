@@ -23,6 +23,12 @@ interface StockApi {
         @Query("token") token: String = KEY
     ): Call<StockPrice>
 
+    @GET("search?")
+    fun getStockByQuery(
+        @Query("q") symbol: String,
+        @Query("token") token: String = KEY
+    ): Call<StockLookup>
+
     companion object {
         private const val KEY = "c10fsj748v6oijd8e5gg"
     }

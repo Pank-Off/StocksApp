@@ -6,16 +6,22 @@ import kotlinx.coroutines.*
 import retrofit2.Response
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.model.retrofit.*
+import ru.punkoff.stocksapp.model.room.StockDao
 import ru.punkoff.stocksapp.ui.base.BaseViewModel
 import kotlin.math.floor
 
-class StocksViewModel(private val api: StockApi) : BaseViewModel() {
+class StocksViewModel(private val api: StockApi, private val stockDao: StockDao) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
     val stocks = mutableListOf<Stock>()
+
+    init {
+        getRequest()
+    }
+
     private fun createList(json: List<StockSymbol>) {
         cancelJob()
         runBlocking {
-            val jobs: List<Job> = (1..100).map {
+            val jobs: List<Job> = (1..20).map {
                 viewModelCoroutineScope.launch(Dispatchers.IO) {
                     getQuote(json[it])
                 }
@@ -27,7 +33,13 @@ class StocksViewModel(private val api: StockApi) : BaseViewModel() {
         }
     }
 
-    fun getRequest() {
+    fun saveToDB(stock: Stock) {
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
+            stockDao.insert(stock)
+        }
+    }
+
+    private fun getRequest() {
         stocksLiveData.value = StocksViewState.Loading
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
@@ -91,6 +103,22 @@ class StocksViewModel(private val api: StockApi) : BaseViewModel() {
         return StockPrice(0.0, 0.0)
     }
 
+    fun getStockBySymbol(symbol: String) {
+        cancelJob()
+        stocksLiveData.value = StocksViewState.Loading
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
+            val response: Response<StockLookup> =
+                api.getStockByQuery(symbol).execute()
+            if (response.isSuccessful && response.body() != null) {
+                val json: StockLookup? = response.body()
+                if (json != null) {
+                    Log.d(javaClass.simpleName, "PRICE Symbol in json: $symbol")
+                    Log.d(javaClass.simpleName, "PRICE:$json")
+                    createList(json.result)
+                }
+            }
+        }
+    }
 
     fun observeViewState() = stocksLiveData
 }
