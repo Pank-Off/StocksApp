@@ -20,7 +20,7 @@
             android:layout_width="52dp"
             android:layout_height="52dp"
             android:layout_margin="8dp"
-            android:src="@drawable/apple"
+            android:src="@drawable/no_image_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

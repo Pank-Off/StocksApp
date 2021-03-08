@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ItemStockBinding
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.utils.GlideLoader
+import ru.punkoff.stocksapp.utils.PicassoLoader
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -104,7 +104,7 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UT
                         ContextCompat.getColorStateList(root.context, R.color.white)
                 }
 
-                GlideLoader.loadImage(imageView = logo, url = currentItem.logo)
+                PicassoLoader.loadImage(imageView = logo, url = currentItem.logo)
                 root.setOnClickListener(stockClickListener)
             }
         }
