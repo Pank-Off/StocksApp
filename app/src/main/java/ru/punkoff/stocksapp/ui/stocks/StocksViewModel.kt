@@ -26,7 +26,7 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         }
     }
 
-    private fun getRequest() {
+    fun getRequest() {
         stocksLiveData.value = StocksViewState.Loading
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
@@ -41,15 +41,16 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
             val json: List<StockSymbol>? = response.body()
             if (json != null) {
                 Log.d(javaClass.simpleName, "jsonSize: ${json.size}")
-                createList(json, 0, 20)
+                createList(json)
             }
         }
     }
 
-    private fun createList(json: List<StockSymbol>, start: Int, end: Int) = runBlocking {
+    private fun createList(json: List<StockSymbol>) = runBlocking {
         cancelJob()
         val jobs = mutableListOf<Job>()
-        for (i in start until end) {
+
+        for (i in START until END) {
             jobs.add(viewModelCoroutineScope.launch(Dispatchers.IO) {
                 getQuote(json[i])
             }
@@ -62,13 +63,13 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
     }
 
     private fun getQuote(stockSymbol: StockSymbol) {
-
         Log.d(javaClass.simpleName, "symbolQuote ${stockSymbol.ticker}")
         val price = getPrice(stockSymbol.ticker)
         val percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
 
         val logo = getLogo(stockSymbol.ticker)
         stocks.add(
+            0,
             Stock(
                 stockSymbol.displaySymbol,
                 stockSymbol.name,
@@ -119,11 +120,17 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
                 if (json != null) {
                     Log.d(javaClass.simpleName, "Symbol query: $symbol")
                     Log.d(javaClass.simpleName, "query:$json")
-                    createList(json.result, 0, json.result.size)
+                    END = json.result.size
+                    createList(json.result)
                 }
             }
         }
     }
 
     fun observeViewState() = stocksLiveData
+
+    companion object {
+        const val START = 0
+        private var END = 2
+    }
 }

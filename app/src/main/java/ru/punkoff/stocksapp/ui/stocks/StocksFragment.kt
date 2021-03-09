@@ -47,6 +47,10 @@ class StocksFragment : Fragment() {
         with(binding) {
             listStocks.adapter = adapter
             listStocks.layoutManager = LinearLayoutManager(context)
+            swipeRefreshLayout.setOnRefreshListener {
+                stocksViewModel.getRequest()
+                swipeRefreshLayout.isRefreshing = false
+            }
             stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
                 when (it) {
                     is StocksViewState.Value -> {
