@@ -3,7 +3,7 @@ package ru.punkoff.stocksapp.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "table_stocks")
+@Entity(tableName = "table_favourite_stocks")
 data class Stock(
     val ticket: String,
     val name: String,

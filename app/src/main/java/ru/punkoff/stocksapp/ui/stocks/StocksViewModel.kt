@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import retrofit2.Response
+import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.model.retrofit.*
 import ru.punkoff.stocksapp.model.room.StockDao
@@ -13,11 +14,20 @@ import kotlin.math.floor
 class StocksViewModel(private val api: StockApi, private val stockDao: StockDao) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
-    @Volatile
     var stocks = mutableListOf<Stock>()
 
     init {
-        getRequest()
+        runBlocking {
+            viewModelCoroutineScope.launch(Dispatchers.IO) {
+                stocks = stockDao.getCacheStocks().listStock as MutableList<Stock>
+                Log.d(javaClass.simpleName, "StockDao: ${stockDao.getCacheStocks()}")
+            }.join()
+            if (stocks.size != 0) {
+                stocksLiveData.value = StocksViewState.Value(stocks)
+            } else {
+                getRequest()
+            }
+        }
     }
 
     fun saveToDB(stock: Stock) {
@@ -49,7 +59,6 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
     private fun createList(json: List<StockSymbol>) = runBlocking {
         cancelJob()
         val jobs = mutableListOf<Job>()
-
         for (i in START until END) {
             jobs.add(viewModelCoroutineScope.launch(Dispatchers.IO) {
                 getQuote(json[i])
@@ -60,13 +69,19 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         jobs.joinAll()
         Log.d(javaClass.simpleName, "runBlocking:After")
         stocksLiveData.postValue(StocksViewState.Value(stocks))
+        stockDao.insertList(CacheStock(stocks))
+        Log.d(javaClass.simpleName, "Stocks: $stocks")
+        Log.d(javaClass.simpleName, "StockDao: ${stockDao.getCacheStocks()}")
     }
 
     private fun getQuote(stockSymbol: StockSymbol) {
         Log.d(javaClass.simpleName, "symbolQuote ${stockSymbol.ticker}")
         val price = getPrice(stockSymbol.ticker)
-        val percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
-
+        var percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
+        Log.d(javaClass.simpleName, "Nan ${stockSymbol.ticker} $percent")
+        if (percent.isNaN()) {
+            percent = 0.0
+        }
         val logo = getLogo(stockSymbol.ticker)
         stocks.add(
             0,

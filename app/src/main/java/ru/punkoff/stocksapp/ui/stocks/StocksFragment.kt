@@ -54,8 +54,14 @@ class StocksFragment : Fragment() {
             stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
                 when (it) {
                     is StocksViewState.Value -> {
+                        Log.d(javaClass.simpleName, it.stocks.toString())
                         adapter.submitList(it.stocks)
-                        adapter.filter.filter(searchView.query)
+                        adapter.notifyDataSetChanged()
+                        try {
+                            adapter.filter.filter(searchView.query)
+                        } catch (exc: UninitializedPropertyAccessException) {
+                            Log.e(javaClass.simpleName, exc.stackTraceToString())
+                        }
                         loadingBar.visibility = View.INVISIBLE
                     }
                     StocksViewState.Loading -> {
@@ -78,7 +84,6 @@ class StocksFragment : Fragment() {
         queryTextListener = object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 Log.i("onQueryTextSubmit", query)
-                adapter.filter.filter(query)
                 stocksViewModel.getStockBySymbol(query)
                 Log.i("ItemCount()", adapter.itemCount.toString())
                 return true
