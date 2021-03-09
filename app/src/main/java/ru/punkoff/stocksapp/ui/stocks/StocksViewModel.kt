@@ -12,25 +12,12 @@ import kotlin.math.floor
 
 class StocksViewModel(private val api: StockApi, private val stockDao: StockDao) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
-    val stocks = mutableListOf<Stock>()
+
+    @Volatile
+    var stocks = mutableListOf<Stock>()
 
     init {
         getRequest()
-    }
-
-    private fun createList(json: List<StockSymbol>) {
-        cancelJob()
-        runBlocking {
-            val jobs: List<Job> = (1..20).map {
-                viewModelCoroutineScope.launch(Dispatchers.IO) {
-                    getQuote(json[it])
-                }
-            }
-            Log.d(javaClass.simpleName, "runBlocking:Before")
-            jobs.joinAll()
-            Log.d(javaClass.simpleName, "runBlocking:After")
-            stocksLiveData.postValue(StocksViewState.Value(stocks))
-        }
     }
 
     fun saveToDB(stock: Stock) {
@@ -47,22 +34,6 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         }
     }
 
-    private fun getQuote(stock: StockSymbol) {
-        val price = getPrice(stock.ticker)
-        val logo = getLogo(stock.ticker)
-        val percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
-        stocks.add(
-            Stock(
-                stock.ticker,
-                stock.name,
-                floor(price.currentPrice * 1000) / 1000,
-                floor(percent * 1000) / 1000,
-                logo.logo
-            )
-        )
-        Log.d("STOCKS: ", stock.toString())
-    }
-
     private fun getStocks() {
         val response: Response<List<StockSymbol>> =
             api.getStocks("US").execute()
@@ -70,9 +41,43 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
             val json: List<StockSymbol>? = response.body()
             if (json != null) {
                 Log.d(javaClass.simpleName, "jsonSize: ${json.size}")
-                createList(json)
+                createList(json, 0, 20)
             }
         }
+    }
+
+    private fun createList(json: List<StockSymbol>, start: Int, end: Int) = runBlocking {
+        cancelJob()
+        val jobs = mutableListOf<Job>()
+        for (i in start until end) {
+            jobs.add(viewModelCoroutineScope.launch(Dispatchers.IO) {
+                getQuote(json[i])
+            }
+            )
+        }
+        Log.d(javaClass.simpleName, "runBlocking:Before")
+        jobs.joinAll()
+        Log.d(javaClass.simpleName, "runBlocking:After")
+        stocksLiveData.postValue(StocksViewState.Value(stocks))
+    }
+
+    private fun getQuote(stockSymbol: StockSymbol) {
+
+        Log.d(javaClass.simpleName, "symbolQuote ${stockSymbol.ticker}")
+        val price = getPrice(stockSymbol.ticker)
+        val percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
+
+        val logo = getLogo(stockSymbol.ticker)
+        stocks.add(
+            Stock(
+                stockSymbol.displaySymbol,
+                stockSymbol.name,
+                floor(price.currentPrice * 1000) / 1000,
+                floor(percent * 1000) / 1000,
+                logo.logo
+            )
+        )
+        Log.d("STOCKS: ", stocks.toString())
     }
 
     private fun getLogo(symbol: String): StockLogo {
@@ -80,7 +85,7 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
             api.getLogo(symbol).execute()
         if (response.isSuccessful && response.body() != null) {
             val json: StockLogo? = response.body()
-            if (json != null) {
+            if (json != null && json.logo != null) {
                 Log.d(javaClass.simpleName, "LOGO: $json")
                 return json
             }
@@ -112,9 +117,9 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
             if (response.isSuccessful && response.body() != null) {
                 val json: StockLookup? = response.body()
                 if (json != null) {
-                    Log.d(javaClass.simpleName, "PRICE Symbol in json: $symbol")
-                    Log.d(javaClass.simpleName, "PRICE:$json")
-                    createList(json.result)
+                    Log.d(javaClass.simpleName, "Symbol query: $symbol")
+                    Log.d(javaClass.simpleName, "query:$json")
+                    createList(json.result, 0, json.result.size)
                 }
             }
         }
