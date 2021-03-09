@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import retrofit2.Response
+import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.model.retrofit.*
 import ru.punkoff.stocksapp.model.room.StockDao
@@ -12,24 +13,20 @@ import kotlin.math.floor
 
 class StocksViewModel(private val api: StockApi, private val stockDao: StockDao) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
-    val stocks = mutableListOf<Stock>()
+
+    var stocks = mutableListOf<Stock>()
 
     init {
-        getRequest()
-    }
-
-    private fun createList(json: List<StockSymbol>) {
-        cancelJob()
         runBlocking {
-            val jobs: List<Job> = (1..20).map {
-                viewModelCoroutineScope.launch(Dispatchers.IO) {
-                    getQuote(json[it])
-                }
+            viewModelCoroutineScope.launch(Dispatchers.IO) {
+                stocks = stockDao.getCacheStocks().listStock as MutableList<Stock>
+                Log.d(javaClass.simpleName, "StockDao: ${stockDao.getCacheStocks()}")
+            }.join()
+            if (stocks.size != 0) {
+                stocksLiveData.value = StocksViewState.Value(stocks)
+            } else {
+                getRequest()
             }
-            Log.d(javaClass.simpleName, "runBlocking:Before")
-            jobs.joinAll()
-            Log.d(javaClass.simpleName, "runBlocking:After")
-            stocksLiveData.postValue(StocksViewState.Value(stocks))
         }
     }
 
@@ -39,28 +36,12 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         }
     }
 
-    private fun getRequest() {
+    fun getRequest() {
         stocksLiveData.value = StocksViewState.Loading
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
             getStocks()
         }
-    }
-
-    private fun getQuote(stock: StockSymbol) {
-        val price = getPrice(stock.ticker)
-        val logo = getLogo(stock.ticker)
-        val percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
-        stocks.add(
-            Stock(
-                stock.ticker,
-                stock.name,
-                floor(price.currentPrice * 1000) / 1000,
-                floor(percent * 1000) / 1000,
-                logo.logo
-            )
-        )
-        Log.d("STOCKS: ", stock.toString())
     }
 
     private fun getStocks() {
@@ -75,12 +56,52 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         }
     }
 
+    private fun createList(json: List<StockSymbol>) = runBlocking {
+        cancelJob()
+        val jobs = mutableListOf<Job>()
+        for (i in START until END) {
+            jobs.add(viewModelCoroutineScope.launch(Dispatchers.IO) {
+                getQuote(json[i])
+            }
+            )
+        }
+        Log.d(javaClass.simpleName, "runBlocking:Before")
+        jobs.joinAll()
+        Log.d(javaClass.simpleName, "runBlocking:After")
+        stocksLiveData.postValue(StocksViewState.Value(stocks))
+        stockDao.insertList(CacheStock(stocks))
+        Log.d(javaClass.simpleName, "Stocks: $stocks")
+        Log.d(javaClass.simpleName, "StockDao: ${stockDao.getCacheStocks()}")
+    }
+
+    private fun getQuote(stockSymbol: StockSymbol) {
+        Log.d(javaClass.simpleName, "symbolQuote ${stockSymbol.ticker}")
+        val price = getPrice(stockSymbol.ticker)
+        var percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
+        Log.d(javaClass.simpleName, "Nan ${stockSymbol.ticker} $percent")
+        if (percent.isNaN()) {
+            percent = 0.0
+        }
+        val logo = getLogo(stockSymbol.ticker)
+        stocks.add(
+            0,
+            Stock(
+                stockSymbol.displaySymbol,
+                stockSymbol.name,
+                floor(price.currentPrice * 1000) / 1000,
+                floor(percent * 1000) / 1000,
+                logo.logo
+            )
+        )
+        Log.d("STOCKS: ", stocks.toString())
+    }
+
     private fun getLogo(symbol: String): StockLogo {
         val response: Response<StockLogo> =
             api.getLogo(symbol).execute()
         if (response.isSuccessful && response.body() != null) {
             val json: StockLogo? = response.body()
-            if (json != null) {
+            if (json != null && json.logo != null) {
                 Log.d(javaClass.simpleName, "LOGO: $json")
                 return json
             }
@@ -112,8 +133,9 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
             if (response.isSuccessful && response.body() != null) {
                 val json: StockLookup? = response.body()
                 if (json != null) {
-                    Log.d(javaClass.simpleName, "PRICE Symbol in json: $symbol")
-                    Log.d(javaClass.simpleName, "PRICE:$json")
+                    Log.d(javaClass.simpleName, "Symbol query: $symbol")
+                    Log.d(javaClass.simpleName, "query:$json")
+                    END = json.result.size
                     createList(json.result)
                 }
             }
@@ -121,4 +143,9 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
     }
 
     fun observeViewState() = stocksLiveData
+
+    companion object {
+        const val START = 0
+        private var END = 2
+    }
 }
