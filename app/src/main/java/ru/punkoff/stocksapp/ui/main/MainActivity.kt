@@ -1,6 +1,7 @@
 package ru.punkoff.stocksapp.ui.main
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
@@ -14,10 +15,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         val fragmentAdapter = MyPagerAdapter(this)
         with(binding) {
             viewpager.adapter = fragmentAdapter
             TabLayoutMediator(tabLayout, viewpager) { tab, position ->
+                tab.view.gravity = Gravity.START
                 when (FragmentTypeEnum.values()[fragmentAdapter.getItemViewType(position)]) {
                     FragmentTypeEnum.STOCKS -> tab.text = getString(R.string.stocks)
                     FragmentTypeEnum.FAVOURITE -> tab.text = getString(R.string.favourite)

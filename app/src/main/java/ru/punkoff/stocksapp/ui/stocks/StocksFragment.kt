@@ -49,19 +49,18 @@ class StocksFragment : Fragment() {
             listStocks.layoutManager = LinearLayoutManager(context)
             swipeRefreshLayout.setOnRefreshListener {
                 stocksViewModel.getRequest()
-                swipeRefreshLayout.isRefreshing = false
             }
             stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
                 when (it) {
                     is StocksViewState.Value -> {
                         Log.d(javaClass.simpleName, it.stocks.toString())
-                        adapter.submitList(it.stocks)
-                        adapter.notifyDataSetChanged()
+                        adapter.setData(it.stocks)
                         try {
                             adapter.filter.filter(searchView.query)
                         } catch (exc: UninitializedPropertyAccessException) {
                             Log.e(javaClass.simpleName, exc.stackTraceToString())
                         }
+                        swipeRefreshLayout.isRefreshing = false
                         loadingBar.visibility = View.INVISIBLE
                     }
                     StocksViewState.Loading -> {
@@ -74,7 +73,6 @@ class StocksFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-
         inflater.inflate(R.menu.main, menu)
         val searchItem: MenuItem = menu.findItem(R.id.search)
         val searchManager =
