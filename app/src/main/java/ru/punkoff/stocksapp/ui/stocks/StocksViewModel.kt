@@ -37,7 +37,6 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
     }
 
     fun getRequest() {
-        stocksLiveData.value = StocksViewState.Loading
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
             getStocks()
@@ -146,6 +145,6 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
 
     companion object {
         const val START = 0
-        private var END = 2
+        private var END = 10
     }
 }

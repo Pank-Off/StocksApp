@@ -10,37 +10,37 @@ import android.widget.Filterable
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ItemStockBinding
 import ru.punkoff.stocksapp.model.Stock
+import ru.punkoff.stocksapp.utils.MyDiffUtilCallback
 import ru.punkoff.stocksapp.utils.PicassoLoader
 import java.util.*
 import kotlin.collections.ArrayList
 
-val DIFF_UTIL: DiffUtil.ItemCallback<Stock> = object : DiffUtil.ItemCallback<Stock>() {
-    override fun areItemsTheSame(oldItem: Stock, newItem: Stock): Boolean {
-        return oldItem == newItem
-    }
+class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Filterable {
 
-    override fun areContentsTheSame(oldItem: Stock, newItem: Stock): Boolean {
-        return true
-    }
-}
-
-class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UTIL), Filterable {
-
-    private var firstStart = true
     private lateinit var onStockListener: OnStockClickListener
     private lateinit var onStarListener: OnStarClickListener
-    private lateinit var stockListFiltered: List<Stock>
+    private var stockList = mutableListOf<Stock>()
+    private var stockListFiltered = stockList
+
     fun attachListener(listener: OnStockClickListener) {
         onStockListener = listener
     }
 
     fun attachSaveListener(listener: OnStarClickListener) {
         onStarListener = listener
+    }
+
+    fun setData(newStockList: List<Stock>) {
+        val oldList = stockList
+        stockList.clear()
+        stockList.addAll(newStockList)
+        val diffUtilCallback = MyDiffUtilCallback(oldList, newStockList)
+        val diffResult = DiffUtil.calculateDiff(diffUtilCallback)
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StocksViewHolder {
@@ -52,10 +52,6 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UT
     }
 
     override fun getItemCount(): Int {
-        stockListFiltered = if (firstStart) {
-            currentList
-        } else
-            stockListFiltered.filter { currentList.contains(it) }
         return stockListFiltered.size
     }
 
@@ -92,7 +88,7 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UT
             currentPosition = position
             currentStock = currentItem
             with(binding) {
-                ticket.text = currentItem.ticket
+                ticket.text = currentItem.ticker
                 name.text = currentItem.name
                 price.text = currentItem.price.toString()
                 stock.text = currentItem.stock.toString()
@@ -119,13 +115,12 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UT
             override fun performFiltering(constraint: CharSequence): FilterResults {
                 val charString: String = constraint.toString()
                 Log.d(javaClass.simpleName + " charString", charString)
-                Log.d(javaClass.simpleName, currentList.toString())
                 stockListFiltered = if (charString.isEmpty()) {
-                    currentList
+                    stockList
                 } else {
                     val filteredList: ArrayList<Stock> = ArrayList()
-                    for (stock in currentList) {
-                        if (stock.ticket.toLowerCase(Locale.ROOT)
+                    for (stock in stockList) {
+                        if (stock.ticker.toLowerCase(Locale.ROOT)
                                 .contains(charString.toLowerCase(Locale.ROOT))
                             || stock.name.toLowerCase(Locale.ROOT).contains(
                                 charString.toLowerCase(
@@ -144,8 +139,7 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(DIFF_UT
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults) {
-                stockListFiltered = results.values as List<Stock>
-                firstStart = false
+                stockListFiltered = results.values as MutableList<Stock>
                 notifyDataSetChanged()
             }
         }

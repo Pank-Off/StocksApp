@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "table_favourite_stocks")
 data class Stock(
-    val ticket: String,
+    val ticker: String,
     val name: String,
     val price: Double,
     val stock: Double,

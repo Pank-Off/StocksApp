@@ -39,7 +39,7 @@ class FavouriteFragment : Fragment() {
             favouriteViewModel.observeViewState().observe(viewLifecycleOwner) {
                 when (it) {
                     is StocksViewState.Value -> {
-                        adapter.submitList(it.stocks)
+                        adapter.setData(it.stocks)
                         loadingBar.visibility = View.INVISIBLE
                     }
                     StocksViewState.Loading -> loadingBar.visibility = View.VISIBLE
@@ -50,5 +50,10 @@ class FavouriteFragment : Fragment() {
         }
 
         favouriteViewModel.getStocksFromDB()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
