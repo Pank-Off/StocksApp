@@ -21,18 +21,21 @@
                 android:layout_height="match_parent">
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/textFieldTitle"
+                    android:id="@+id/textFieldSearch"
                     style="@style/CustomTextInputLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:focusableInTouchMode="true"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/textInputTitle"
+                        android:id="@+id/textInputSearch"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionSearch"
+                        android:inputType="textFilter" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.tabs.TabLayout
@@ -42,7 +45,7 @@
                     android:layout_height="wrap_content"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textFieldTitle" />
+                    app:layout_constraintTop_toBottomOf="@+id/textFieldSearch" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
