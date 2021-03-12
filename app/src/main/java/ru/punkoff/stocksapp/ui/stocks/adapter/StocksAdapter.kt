@@ -31,7 +31,7 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
         onStockListener = listener
     }
 
-    fun attachSaveListener(listener: OnStarClickListener) {
+    fun attachStarListener(listener: OnStarClickListener) {
         onStarListener = listener
     }
 
@@ -76,18 +76,13 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
         }
 
         private val starClickListener: View.OnClickListener = View.OnClickListener {
-            if (!isEnabledStar) {
-                isEnabledStar = true
-                favourite.background =
-                    ContextCompat.getDrawable(favourite.context, android.R.drawable.star_on)
+            if (currentStock.isFavourite) {
+                onStarListener.deleteStock(currentStock)
             } else {
-                isEnabledStar = false
-                favourite.background =
-                    ContextCompat.getDrawable(favourite.context, android.R.drawable.star_off)
+                onStarListener.saveStock(currentStock)
             }
-            onStarListener.onClick(currentStock)
+            notifyItemChanged(currentPosition)
         }
-        private var isEnabledStar = false
 
         private val favourite = binding.root.findViewById<ImageView>(R.id.favorite)
         fun bind(currentItem: Stock, position: Int) {
@@ -96,16 +91,28 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
             with(binding) {
                 root.isEnabled = isEnabled
                 favorite.isEnabled = isEnabled
-                ticket.text = currentItem.ticker
+                ticker.text = currentItem.ticker
                 name.text = currentItem.name
                 price.text = currentItem.price.toString()
                 stock.text = currentItem.stock.toString()
+                if (currentItem.isFavourite) {
+                    favourite.background =
+                        ContextCompat.getDrawable(favourite.context, android.R.drawable.star_on)
+                } else {
+                    favourite.background =
+                        ContextCompat.getDrawable(favourite.context, android.R.drawable.star_off)
+                }
                 if (currentItem.stock < 0) {
                     stock.setTextColor(Color.RED)
                 }
                 if (position % 2 == 0) {
+                    Log.d(javaClass.simpleName, "Position: $position")
+                    Log.d(javaClass.simpleName, "Item: ${currentItem.ticker}")
                     root.backgroundTintList =
                         ContextCompat.getColorStateList(root.context, R.color.white)
+                } else {
+                    root.backgroundTintList =
+                        ContextCompat.getColorStateList(root.context, R.color.card_background)
                 }
 
                 PicassoLoader.loadImage(imageView = logo, url = currentItem.logo)

@@ -18,6 +18,8 @@ import com.google.android.material.textfield.TextInputLayout
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.StocksFragmentBinding
+import ru.punkoff.stocksapp.model.Stock
+import ru.punkoff.stocksapp.ui.stocks.adapter.OnStarClickListener
 import ru.punkoff.stocksapp.ui.stocks.adapter.StocksAdapter
 
 
@@ -129,10 +131,23 @@ class StocksFragment : Fragment() {
             Toast.makeText(context, position.toString(), Toast.LENGTH_SHORT).show()
         }
 
-        adapter.attachSaveListener { stock ->
-            Log.d(javaClass.simpleName, "StockToInsert $stock")
-            stocksViewModel.saveToDB(stock)
-        }
+        adapter.attachStarListener(object : OnStarClickListener {
+            override fun deleteStock(stock: Stock) {
+                stock.isFavourite = false
+                stocksViewModel.deleteFromDB(stock)
+            }
+
+            override fun saveStock(stock: Stock) {
+                Log.d(javaClass.simpleName, "StockToInsert $stock")
+                stock.isFavourite = true
+                stocksViewModel.saveToDB(stock)
+            }
+        })
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stocksViewModel.saveCache()
     }
 
     override fun onDestroyView() {

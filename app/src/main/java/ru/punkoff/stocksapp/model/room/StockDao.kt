@@ -13,6 +13,9 @@ interface StockDao {
     @Insert
     fun insert(stock: Stock)
 
+    @Query("DELETE FROM table_favourite_stocks WHERE ticker = :ticker")
+    fun delete(ticker: String)
+
     @Query("SELECT * FROM table_favourite_stocks")
     fun getStocks(): List<Stock>
 

@@ -36,6 +36,18 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         }
     }
 
+    fun saveCache() {
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
+            stockDao.insertList(CacheStock(stocks))
+        }
+    }
+
+    fun deleteFromDB(stock: Stock) {
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
+            stockDao.delete(stock.ticker)
+        }
+    }
+
     fun getRequest() {
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
@@ -68,7 +80,6 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         jobs.joinAll()
         Log.d(javaClass.simpleName, "runBlocking:After")
         stocksLiveData.postValue(StocksViewState.Value(stocks))
-        stockDao.insertList(CacheStock(stocks))
         Log.d(javaClass.simpleName, "Stocks: $stocks")
         Log.d(javaClass.simpleName, "StockDao: ${stockDao.getCacheStocks()}")
     }

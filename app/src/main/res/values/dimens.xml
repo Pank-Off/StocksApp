@@ -1,4 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="textFieldMargin">16dp</dimen>
+    <dimen name="tab_marginStart">10dp</dimen>
+    <dimen name="tab_marginEnd">10dp</dimen>
+    <dimen name="tab_marginTop">10dp</dimen>
+    <dimen name="tab_textSize">28sp</dimen>
+    <dimen name="searchViewCornerRadius">24dp</dimen>
+    <dimen name="searchViewBorderWidth">10dp</dimen>
+    <dimen name="card_marginStart">16dp</dimen>
+    <dimen name="card_marginEnd">16dp</dimen>
+    <dimen name="card_marginBottom">8dp</dimen>
+    <dimen name="card_cornerRadius">16dp</dimen>
+    <dimen name="logo_size">52dp</dimen>
+    <dimen name="logo_margin">8dp</dimen>
+    <dimen name="ticker_marginStart">12dp</dimen>
+    <dimen name="ticker_textSize">24sp</dimen>
+    <dimen name="name_marginStart">12dp</dimen>
+    <dimen name="name_textSize">12sp</dimen>
+    <dimen name="price_marginEnd">16dp</dimen>
+    <dimen name="price_textSize">24sp</dimen>
+    <dimen name="stock_marginStart">8dp</dimen>
+    <dimen name="stock_marginEnd">12dp</dimen>
+    <dimen name="stock_textSize">16sp</dimen>
 </resources>
