@@ -16,12 +16,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        val fragmentAdapter = MyPagerAdapter(this)
+        val pagerAdapter = MyPagerAdapter(this)
         with(binding) {
-            viewpager.adapter = fragmentAdapter
+            viewpager.adapter = pagerAdapter
             TabLayoutMediator(tabLayout, viewpager) { tab, position ->
                 tab.view.gravity = Gravity.START
-                when (FragmentTypeEnum.values()[fragmentAdapter.getItemViewType(position)]) {
+                when (FragmentTypeEnum.values()[pagerAdapter.getItemViewType(position)]) {
                     FragmentTypeEnum.STOCKS -> tab.text = getString(R.string.stocks)
                     FragmentTypeEnum.FAVOURITE -> tab.text = getString(R.string.favourite)
                 }

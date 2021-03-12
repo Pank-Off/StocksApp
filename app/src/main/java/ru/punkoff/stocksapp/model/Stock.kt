@@ -12,4 +12,5 @@ data class Stock(
     val logo: String,
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
+    var isFavourite: Boolean = false
 )
