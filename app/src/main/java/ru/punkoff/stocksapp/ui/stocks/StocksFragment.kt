@@ -1,18 +1,25 @@
 package ru.punkoff.stocksapp.ui.stocks
 
-import android.app.SearchManager
-import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
-import android.widget.SearchView
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.StocksFragmentBinding
 import ru.punkoff.stocksapp.ui.stocks.adapter.StocksAdapter
+
 
 class StocksFragment : Fragment() {
 
@@ -21,8 +28,22 @@ class StocksFragment : Fragment() {
     private var _binding: StocksFragmentBinding? = null
     private val binding: StocksFragmentBinding get() = _binding!!
 
-    private lateinit var searchView: SearchView
-    private lateinit var queryTextListener: SearchView.OnQueryTextListener
+    private lateinit var searchView: TextInputEditText
+    private lateinit var searchViewLayout: TextInputLayout
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager2
+    private val searchViewTextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        }
+
+        override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            adapter.filter.filter(s)
+        }
+
+        override fun afterTextChanged(p0: Editable?) {
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -34,7 +55,76 @@ class StocksFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHasOptionsMenu(true)
+        tabLayout = requireActivity().findViewById(R.id.tab_layout)
+        setSearchViewOptions()
+        attachListenerToAdapter()
+        with(binding) {
+            listStocks.adapter = adapter
+            listStocks.layoutManager = LinearLayoutManager(context)
+            swipeRefreshLayout.setOnRefreshListener {
+                stocksViewModel.getRequest()
+                setEnabledView(false)
+            }
+            stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
+                when (it) {
+                    is StocksViewState.Value -> {
+                        Log.d(javaClass.simpleName, it.stocks.toString())
+                        adapter.setData(it.stocks)
+                        adapter.filter.filter(searchView.text)
+                        swipeRefreshLayout.isEnabled = true
+                        swipeRefreshLayout.isRefreshing = false
+                        loadingBar.visibility = View.INVISIBLE
+                        setEnabledView(true)
+                    }
+                    StocksViewState.Loading -> {
+                        loadingBar.visibility = View.VISIBLE
+                        swipeRefreshLayout.isEnabled = false
+                        setEnabledView(false)
+                    }
+                    StocksViewState.EMPTY -> Unit
+                }
+            }
+        }
+    }
+
+    private fun setEnabledView(isEnabled: Boolean) {
+        searchViewLayout.isEnabled = isEnabled
+        viewPager.isUserInputEnabled = isEnabled
+        adapter.setEnabled(isEnabled)
+        val tabStrip = tabLayout.getChildAt(0) as LinearLayout
+        for (i in 0 until tabStrip.childCount) {
+            tabStrip.getChildAt(i).setOnTouchListener { view, _ ->
+                if (false) {
+                    view?.performClick()
+                }
+                !isEnabled
+            }
+        }
+    }
+
+    private fun setSearchViewOptions() {
+        searchView = requireActivity().findViewById(R.id.textInputSearch)
+        searchViewLayout = requireActivity().findViewById(R.id.textFieldSearch)
+        viewPager = requireActivity().findViewById(R.id.viewpager)
+        searchView.addTextChangedListener(searchViewTextWatcher)
+        searchView.setOnEditorActionListener(object : OnEditorActionListener {
+            override fun onEditorAction(
+                view: TextView?,
+                actionId: Int,
+                keyEvent: KeyEvent?
+            ): Boolean {
+                if (keyEvent != null) {
+                    if (!keyEvent.isShiftPressed && searchView.text != null && searchView.text.toString() != "") {
+                        stocksViewModel.getStockBySymbol(searchView.text.toString())
+                    }
+                    return true
+                }
+                return false
+            }
+        })
+    }
+
+    private fun attachListenerToAdapter() {
         adapter.attachListener { item, position ->
             Toast.makeText(context, position.toString(), Toast.LENGTH_SHORT).show()
         }
@@ -43,67 +133,6 @@ class StocksFragment : Fragment() {
             Log.d(javaClass.simpleName, "StockToInsert $stock")
             stocksViewModel.saveToDB(stock)
         }
-
-        with(binding) {
-            listStocks.adapter = adapter
-            listStocks.layoutManager = LinearLayoutManager(context)
-            swipeRefreshLayout.setOnRefreshListener {
-                stocksViewModel.getRequest()
-            }
-            stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
-                when (it) {
-                    is StocksViewState.Value -> {
-                        Log.d(javaClass.simpleName, it.stocks.toString())
-                        adapter.setData(it.stocks)
-                        try {
-                            adapter.filter.filter(searchView.query)
-                        } catch (exc: UninitializedPropertyAccessException) {
-                            Log.e(javaClass.simpleName, exc.stackTraceToString())
-                        }
-                        swipeRefreshLayout.isRefreshing = false
-                        loadingBar.visibility = View.INVISIBLE
-                    }
-                    StocksViewState.Loading -> {
-                        loadingBar.visibility = View.VISIBLE
-                    }
-                    StocksViewState.EMPTY -> Unit
-                }
-            }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main, menu)
-        val searchItem: MenuItem = menu.findItem(R.id.search)
-        val searchManager =
-            requireActivity().getSystemService(Context.SEARCH_SERVICE) as SearchManager
-        searchView = searchItem.actionView as SearchView
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
-        queryTextListener = object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                Log.i("onQueryTextSubmit", query)
-                stocksViewModel.getStockBySymbol(query)
-                Log.i("ItemCount()", adapter.itemCount.toString())
-                return true
-            }
-
-            override fun onQueryTextChange(newText: String): Boolean {
-                Log.i("onQueryTextChange", newText)
-                adapter.filter.filter(newText)
-                Log.i("ItemCount()", adapter.itemCount.toString())
-                return true
-            }
-        }
-        searchView.setOnQueryTextListener(queryTextListener)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.search) {
-            return false
-        }
-        searchView.setOnQueryTextListener(queryTextListener)
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onDestroyView() {

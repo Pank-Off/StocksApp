@@ -3,4 +3,5 @@
     <string name="stocks">Stocks</string>
     <string name="favourite">Favourite</string>
     <string name="search_title">searchTitle</string>
+    <string name="hint_edit_text">Find company or ticker</string>
 </resources>

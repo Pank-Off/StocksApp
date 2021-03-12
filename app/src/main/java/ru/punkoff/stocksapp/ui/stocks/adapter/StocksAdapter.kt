@@ -26,12 +26,18 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
     private var stockList = mutableListOf<Stock>()
     private var stockListFiltered = stockList
 
+    private var isEnabled = true
     fun attachListener(listener: OnStockClickListener) {
         onStockListener = listener
     }
 
     fun attachSaveListener(listener: OnStarClickListener) {
         onStarListener = listener
+    }
+
+    fun setEnabled(isEnabled: Boolean) {
+        this.isEnabled = isEnabled
+        notifyDataSetChanged()
     }
 
     fun setData(newStockList: List<Stock>) {
@@ -88,6 +94,8 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
             currentPosition = position
             currentStock = currentItem
             with(binding) {
+                root.isEnabled = isEnabled
+                favorite.isEnabled = isEnabled
                 ticket.text = currentItem.ticker
                 name.text = currentItem.name
                 price.text = currentItem.price.toString()
