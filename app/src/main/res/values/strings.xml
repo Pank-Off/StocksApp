@@ -4,4 +4,6 @@
     <string name="favourite">Favourite</string>
     <string name="search_title">searchTitle</string>
     <string name="hint_edit_text">Find company or ticker</string>
+    <string name="popular_requests">Popular requests</string>
+    <string name="you_ve_searched_for_this">You’ve searched for this</string>
 </resources>

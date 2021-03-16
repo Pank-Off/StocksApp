@@ -22,4 +22,8 @@
     <dimen name="stock_marginStart">8dp</dimen>
     <dimen name="stock_marginEnd">12dp</dimen>
     <dimen name="stock_textSize">16sp</dimen>
+
+    <dimen name="btnTextSize">12sp</dimen>
+    <dimen name="btnCornerRadius">20dp</dimen>
+    <dimen name="edit_text_hint_padding">13dp</dimen>
 </resources>

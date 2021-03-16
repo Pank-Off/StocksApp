@@ -1,52 +1,21 @@
-package ru.punkoff.stocksapp.ui.stocks
+package ru.punkoff.stocksapp.ui.main
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import retrofit2.Response
-import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.model.retrofit.*
 import ru.punkoff.stocksapp.model.room.StockDao
 import ru.punkoff.stocksapp.ui.base.BaseViewModel
+import ru.punkoff.stocksapp.ui.stocks.StocksViewState
 import kotlin.math.floor
 
-class StocksViewModel(private val api: StockApi, private val stockDao: StockDao) : BaseViewModel() {
+class ActivityViewModel(private val api: StockApi, private val stockDao: StockDao) :
+    BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
     var stocks = mutableListOf<Stock>()
-
-    init {
-        runBlocking {
-            viewModelCoroutineScope.launch(Dispatchers.IO) {
-                stocks = stockDao.getCacheStocks().listStock as MutableList<Stock>
-                Log.d(javaClass.simpleName, "StockDao: ${stockDao.getCacheStocks()}")
-            }.join()
-            if (stocks.size != 0) {
-                stocksLiveData.value = StocksViewState.Value(stocks)
-            } else {
-                getRequest()
-            }
-        }
-    }
-
-    fun saveToDB(stock: Stock) {
-        viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stockDao.insert(stock)
-        }
-    }
-
-    fun saveCache() {
-        viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stockDao.insertList(CacheStock(stocks))
-        }
-    }
-
-    fun deleteFromDB(stock: Stock) {
-        viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stockDao.delete(stock.ticker)
-        }
-    }
 
     fun getRequest() {
         cancelJob()
@@ -63,6 +32,24 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
             if (json != null) {
                 Log.d(javaClass.simpleName, "jsonSize: ${json.size}")
                 createList(json)
+            }
+        }
+    }
+
+    fun getRequestBySymbol(symbol: String) {
+        cancelJob()
+        stocksLiveData.value = StocksViewState.Loading
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
+            val response: Response<StockLookup> =
+                api.getStockByQuery(symbol).execute()
+            if (response.isSuccessful && response.body() != null) {
+                val json: StockLookup? = response.body()
+                if (json != null) {
+                    Log.d(javaClass.simpleName, "Symbol query: $symbol")
+                    Log.d(javaClass.simpleName, "query:$json")
+                    END = json.result.size
+                    createList(json.result)
+                }
             }
         }
     }
@@ -133,29 +120,7 @@ class StocksViewModel(private val api: StockApi, private val stockDao: StockDao)
         return StockPrice(0.0, 0.0)
     }
 
-    fun getStockBySymbol(symbol: String) {
-        cancelJob()
-        stocksLiveData.value = StocksViewState.Loading
-        viewModelCoroutineScope.launch(Dispatchers.IO) {
-            val response: Response<StockLookup> =
-                api.getStockByQuery(symbol).execute()
-            if (response.isSuccessful && response.body() != null) {
-                val json: StockLookup? = response.body()
-                if (json != null) {
-                    Log.d(javaClass.simpleName, "Symbol query: $symbol")
-                    Log.d(javaClass.simpleName, "query:$json")
-                    END = json.result.size
-                    createList(json.result)
-                }
-            }
-        }
-    }
-
     fun observeViewState() = stocksLiveData
-
-    fun setViewState(state: StocksViewState) {
-        stocksLiveData.value = state
-    }
 
     companion object {
         const val START = 0

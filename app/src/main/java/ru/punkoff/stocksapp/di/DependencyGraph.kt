@@ -12,6 +12,7 @@ import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.model.retrofit.StockApi
 import ru.punkoff.stocksapp.model.room.AppDatabase
 import ru.punkoff.stocksapp.ui.favourite.FavouriteViewModel
+import ru.punkoff.stocksapp.ui.main.ActivityViewModel
 import ru.punkoff.stocksapp.ui.stocks.StocksViewModel
 import java.util.concurrent.TimeUnit
 
@@ -60,6 +61,9 @@ object DependencyGraph {
             }
             viewModel {
                 FavouriteViewModel(get())
+            }
+            viewModel {
+                ActivityViewModel(get(), get())
             }
         }
     }
