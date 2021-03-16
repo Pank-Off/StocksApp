@@ -88,11 +88,13 @@ class MainActivity : AppCompatActivity() {
                     StocksViewState.EMPTY -> Unit
                     StocksViewState.Loading -> {
                         setEnabledView(false)
+                        swipeRefreshLayout.isEnabled = false
                         loadingBar.visibility = View.VISIBLE
                         popularSearchLayout.visibility = View.GONE
                     }
                     is StocksViewState.Value -> {
                         swipeRefreshLayout.isRefreshing = false
+                        swipeRefreshLayout.isEnabled = true
                         setEnabledView(true)
                         loadingBar.visibility = View.GONE
                         viewpager.visibility = View.VISIBLE

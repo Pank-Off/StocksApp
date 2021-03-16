@@ -11,6 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.model.retrofit.StockApi
 import ru.punkoff.stocksapp.model.room.AppDatabase
+import ru.punkoff.stocksapp.repository.RepositoryImplementation
 import ru.punkoff.stocksapp.ui.favourite.FavouriteViewModel
 import ru.punkoff.stocksapp.ui.main.ActivityViewModel
 import ru.punkoff.stocksapp.ui.stocks.StocksViewModel
@@ -18,6 +19,13 @@ import java.util.concurrent.TimeUnit
 
 object DependencyGraph {
 
+    private val repositoryModule by lazy {
+        module {
+            single {
+                RepositoryImplementation(get())
+            }
+        }
+    }
     private val roomModule by lazy {
         module {
             single {
@@ -63,10 +71,10 @@ object DependencyGraph {
                 FavouriteViewModel(get())
             }
             viewModel {
-                ActivityViewModel(get(), get())
+                ActivityViewModel(get())
             }
         }
     }
 
-    val modules = listOf(viewModelModule, apiModule, roomModule)
+    val modules = listOf(viewModelModule, apiModule, roomModule, repositoryModule)
 }
