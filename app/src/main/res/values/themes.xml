@@ -56,4 +56,12 @@
         <item name="endIconMode">clear_text</item>
         <item name="startIconDrawable">@android:drawable/ic_menu_search</item>
     </style>
+
+    <style name="CustomButton" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">#F0F4F7</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">@dimen/btnTextSize</item>
+        <item name="cornerRadius">@dimen/btnCornerRadius</item>
+    </style>
 </resources>
