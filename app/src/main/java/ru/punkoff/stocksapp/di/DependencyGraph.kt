@@ -5,13 +5,14 @@ import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.model.retrofit.StockApi
 import ru.punkoff.stocksapp.model.room.AppDatabase
-import ru.punkoff.stocksapp.repository.RepositoryImplementation
+import ru.punkoff.stocksapp.repository.*
 import ru.punkoff.stocksapp.ui.favourite.FavouriteViewModel
 import ru.punkoff.stocksapp.ui.main.ActivityViewModel
 import ru.punkoff.stocksapp.ui.stocks.StocksViewModel
@@ -22,8 +23,14 @@ object DependencyGraph {
     private val repositoryModule by lazy {
         module {
             single {
-                RepositoryImplementation(get())
-            }
+                RepositoryImplementation(get(), get())
+            } bind Repository::class
+            single {
+                RepositoryRemoteImplementation(get())
+            } bind RepositoryRemote::class
+            single {
+                RepositoryLocalImplementation(get())
+            } bind RepositoryLocal::class
         }
     }
     private val roomModule by lazy {
@@ -55,9 +62,9 @@ object DependencyGraph {
             single { get<Retrofit>().create(StockApi::class.java) }
 
             single {
-                OkHttpClient.Builder().connectTimeout(15, TimeUnit.SECONDS)
-                    .writeTimeout(15, TimeUnit.SECONDS)
-                    .readTimeout(15, TimeUnit.SECONDS)
+                OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
+                    .writeTimeout(20, TimeUnit.SECONDS)
+                    .readTimeout(20, TimeUnit.SECONDS)
                     .build()
             }
         }
@@ -65,7 +72,7 @@ object DependencyGraph {
     private val viewModelModule by lazy {
         module {
             viewModel {
-                StocksViewModel(get(), get())
+                StocksViewModel(get())
             }
             viewModel {
                 FavouriteViewModel(get())

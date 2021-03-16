@@ -7,26 +7,23 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.model.retrofit.StockApi
-import ru.punkoff.stocksapp.model.room.StockDao
-import ru.punkoff.stocksapp.repository.RepositoryImplementation
+import ru.punkoff.stocksapp.repository.Repository
 import ru.punkoff.stocksapp.ui.base.BaseViewModel
 
 class StocksViewModel(
-    private val stockDao: StockDao,
-    private val repository: RepositoryImplementation
+    private val repository: Repository
 ) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
-    var stocks = mutableListOf<Stock>()
-
     init {
+        var stocks = emptyList<Stock>()
         runBlocking {
+            cancelJob()
             viewModelCoroutineScope.launch(Dispatchers.IO) {
-                stocks = stockDao.getCacheStocks().listStock as MutableList<Stock>
-                Log.d(javaClass.simpleName, "StockDao: ${stockDao.getCacheStocks()}")
+                stocks = repository.getCache().listStock
+                Log.d(javaClass.simpleName, "Cache: $stocks")
             }.join()
-            if (stocks.size != 0) {
+            if (stocks.isNotEmpty()) {
                 stocksLiveData.value = StocksViewState.Value(stocks)
             } else {
                 getRequest()
@@ -35,27 +32,31 @@ class StocksViewModel(
     }
 
     fun saveToDB(stock: Stock) {
+        cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stockDao.insert(stock)
+            repository.saveStock(stock)
         }
     }
 
-    fun saveCache() {
+    fun saveCache(stocks: List<Stock>) {
+        Log.d(javaClass.simpleName, "Cache: $stocks")
+        cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stockDao.insertList(CacheStock(stocks))
+            repository.saveCache(CacheStock(stocks))
         }
     }
 
     fun deleteFromDB(stock: Stock) {
+        cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stockDao.delete(stock.ticker)
+            repository.deleteStock(stock.ticker)
         }
     }
 
     private fun getRequest() {
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stocksLiveData.postValue(repository.getData())
+            stocksLiveData.postValue(repository.getRequest())
         }
     }
 

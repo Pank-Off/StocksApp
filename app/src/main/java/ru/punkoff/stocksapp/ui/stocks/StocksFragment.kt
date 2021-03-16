@@ -109,7 +109,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
     override fun onDataReceived(stocks: List<Stock>) {
         val stockList = mutableListOf<Stock>()
         stockList.addAll(stocks)
-        stockList.addAll(stocksViewModel.stocks)
+        stockList.addAll(adapter.getData())
         stocksViewModel.setViewState(StocksViewState.Value(stockList))
     }
 
@@ -119,7 +119,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
 
     override fun onStop() {
         super.onStop()
-        stocksViewModel.saveCache()
+        stocksViewModel.saveCache(adapter.getData())
     }
 
     override fun onDestroyView() {
