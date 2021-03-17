@@ -49,6 +49,8 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
         diffResult.dispatchUpdatesTo(this)
     }
 
+    fun getData() = stockList
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StocksViewHolder {
         return StocksViewHolder(parent)
     }
