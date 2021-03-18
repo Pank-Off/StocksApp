@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.tabs.TabLayoutMediator
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -49,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         val pagerAdapter = MyPagerAdapter(this)
+        setAdapter()
         with(binding) {
             swipeRefreshLayout.setOnRefreshListener {
                 mainViewModel.getRequest()
@@ -82,7 +82,6 @@ class MainActivity : AppCompatActivity() {
                 textInputSearch.clearFocus()
                 textInputSearch.text?.clear()
             }
-            setAdapter()
             mainViewModel.observeViewState().observe(this@MainActivity) {
                 when (it) {
                     StocksViewState.EMPTY -> Unit
@@ -153,15 +152,14 @@ class MainActivity : AppCompatActivity() {
                 mainViewModel.getRequestBySymbol(name)
             }
         })
-        val listPopular = findViewById<RecyclerView>(R.id.list_popular_btn)
-        listPopular.adapter = adapter
-        listPopular.layoutManager =
-            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
-
-        val listRecent = findViewById<RecyclerView>(R.id.list_recent_btn)
-        listRecent.adapter = adapter
-        listRecent.layoutManager =
-            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
+        with(binding) {
+            listPopularBtn.adapter = adapter
+            listPopularBtn.layoutManager =
+                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
+            listRecentBtn.adapter = adapter
+            listRecentBtn.layoutManager =
+                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
+        }
     }
 
     fun setAboutDataListener(listener: OnAboutDataReceivedListener) {

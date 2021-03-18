@@ -1,111 +1,79 @@
 package ru.punkoff.stocksapp.repository
 
 import android.util.Log
-import kotlinx.coroutines.*
-import retrofit2.Response
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.model.retrofit.*
+import ru.punkoff.stocksapp.model.retrofit.StockApi
+import ru.punkoff.stocksapp.model.retrofit.StockSymbol
 import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import ru.punkoff.stocksapp.utils.Constant
 import kotlin.math.floor
 
 class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemote {
-    lateinit var state: StocksViewState
-    var stocks = mutableListOf<Stock>()
+    private var stocks = mutableListOf<Stock>()
+    private suspend fun getStocks(exchange: String) = api.getStocks(exchange).await()
+    private suspend fun getStockByQuery(symbol: String) = api.getStockByQuery(symbol).await()
+    private suspend fun getLogo(symbol: String) = api.getLogo(symbol).await()
+    private suspend fun getPrice(symbol: String) = api.getPrice(symbol).await()
+
+    override fun setCache(stocks: List<Stock>) {
+        this.stocks = stocks as MutableList<Stock>
+    }
+
     override suspend fun getData(): StocksViewState {
-        val response: Response<List<StockSymbol>> =
-            api.getStocks("US").execute()
-        if (response.isSuccessful && response.body() != null) {
-            val json: List<StockSymbol>? = response.body()
-            if (json != null) {
-                Log.d(javaClass.simpleName, "jsonSize: ${json.size}")
-                state = createList(json)
-                return state
+        var state: StocksViewState = StocksViewState.EMPTY
+        val stocksRequest = getStocks(Constant.EXCHANGE).subList(START, END)
+        stocksRequest.forEach {
+            try {
+                getDataForStock(it)
+            } catch (exc: retrofit2.HttpException) {
+                Log.e(javaClass.simpleName, exc.stackTraceToString())
             }
         }
-        return StocksViewState.EMPTY
-    }
 
-    override suspend fun getDataBySymbol(symbol: String): StocksViewState {
-        val response: Response<StockLookup> =
-            api.getStockByQuery(symbol).execute()
-        if (response.isSuccessful && response.body() != null) {
-            val json: StockLookup? = response.body()
-            if (json != null) {
-                Log.d(javaClass.simpleName, "Symbol query: $symbol")
-                Log.d(javaClass.simpleName, "query:$json")
-                END = json.result.size
-                state = createList(json.result)
-                return state
-            }
+        Log.d(javaClass.simpleName, "Stocks: ${stocks.size}")
+        if (stocks.isNotEmpty()) {
+            state = StocksViewState.Value(stocks)
         }
-        return StocksViewState.EMPTY
+        return state
     }
 
-    private fun createList(json: List<StockSymbol>): StocksViewState {
-        runBlocking {
-            val jobs = mutableListOf<Job>()
-            for (i in START until END) {
-                jobs.add(GlobalScope.launch(Dispatchers.IO) {
-                    getQuote(json[i])
-                }
-                )
-            }
-            Log.d(javaClass.simpleName, "runBlocking:Before")
-            jobs.joinAll()
-            Log.d(javaClass.simpleName, "runBlocking:After")
-
-            Log.d(javaClass.simpleName, "Stocks: $stocks")
-        }
-        return StocksViewState.Value(stocks)
-    }
-
-    private fun getQuote(stockSymbol: StockSymbol) {
-        Log.d(javaClass.simpleName, "symbolQuote ${stockSymbol.ticker}")
+    private suspend fun getDataForStock(stockSymbol: StockSymbol) {
         val price = getPrice(stockSymbol.ticker)
+        val logo = getLogo(stockSymbol.ticker)
+        Log.d(javaClass.simpleName, "LOGO: $logo")
         var percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
-        Log.d(javaClass.simpleName, "Nan ${stockSymbol.ticker} $percent")
         if (percent.isNaN()) {
             percent = 0.0
         }
-        val logo = getLogo(stockSymbol.ticker)
-        stocks.add(
-            0,
-            Stock(
-                stockSymbol.displaySymbol,
-                stockSymbol.name,
-                floor(price.currentPrice * 1000) / 1000,
-                floor(percent * 1000) / 1000,
-                logo.logo
+        logo.logo?.let {
+            stocks.add(
+                0,
+                Stock(
+                    stockSymbol.displaySymbol,
+                    stockSymbol.name,
+                    floor(price.currentPrice * 1000) / 1000,
+                    floor(percent * 1000) / 1000,
+                    it
+                )
             )
-        )
+        }
     }
 
-    private fun getLogo(symbol: String): StockLogo {
-        val response: Response<StockLogo> =
-            api.getLogo(symbol).execute()
-        if (response.isSuccessful && response.body() != null) {
-            val json: StockLogo? = response.body()
-            if (json != null && json.logo != null) {
-                Log.d(javaClass.simpleName, "LOGO: $json")
-                return json
+    override suspend fun getDataBySymbol(symbol: String): StocksViewState {
+        Log.d(javaClass.simpleName, "Class: $this")
+        var state: StocksViewState = StocksViewState.EMPTY
+        val stocksRequest = getStockByQuery(symbol)
+        stocksRequest.result.forEach {
+            try {
+                getDataForStock(it)
+            } catch (exc: retrofit2.HttpException) {
+                Log.e(javaClass.simpleName, exc.stackTraceToString())
             }
         }
-        return StockLogo("")
-    }
-
-    private fun getPrice(symbol: String): StockPrice {
-        val response: Response<StockPrice> =
-            api.getPrice(symbol).execute()
-        if (response.isSuccessful && response.body() != null) {
-            val json: StockPrice? = response.body()
-            if (json != null) {
-                Log.d(javaClass.simpleName, "PRICE Symbol in json: $symbol")
-                Log.d(javaClass.simpleName, "PRICE:$json")
-                return json
-            }
+        if (stocks.isNotEmpty()) {
+            state = StocksViewState.Value(stocks)
         }
-        Log.d(javaClass.simpleName, "PRICE Symbol outer json: $symbol")
-        return StockPrice(0.0, 0.0)
+        return state
     }
 
     companion object {

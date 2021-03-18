@@ -21,6 +21,7 @@ class StocksViewModel(
             cancelJob()
             viewModelCoroutineScope.launch(Dispatchers.IO) {
                 stocks = repository.getCache().listStock
+                repository.setCache(stocks)
                 Log.d(javaClass.simpleName, "Cache: $stocks")
             }.join()
             if (stocks.isNotEmpty()) {
