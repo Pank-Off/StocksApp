@@ -5,6 +5,9 @@ import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.stocks.StocksViewState
 
 interface Repository {
+
+    fun setCache(stocks: List<Stock>)
+
     suspend fun getRequest(symbol: String? = null): StocksViewState
 
     suspend fun saveStock(stock: Stock)

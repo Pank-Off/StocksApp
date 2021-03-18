@@ -109,7 +109,6 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
     override fun onDataReceived(stocks: List<Stock>) {
         val stockList = mutableListOf<Stock>()
         stockList.addAll(stocks)
-        stockList.addAll(adapter.getData())
         stocksViewModel.setViewState(StocksViewState.Value(stockList))
     }
 

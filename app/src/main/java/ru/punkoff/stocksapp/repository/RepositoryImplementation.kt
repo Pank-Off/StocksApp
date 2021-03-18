@@ -9,6 +9,10 @@ class RepositoryImplementation(
     private val repositoryLocal: RepositoryLocal
 ) : Repository {
 
+    override fun setCache(stocks: List<Stock>) {
+        repositoryRemote.setCache(stocks)
+    }
+
     override suspend fun getRequest(symbol: String?): StocksViewState =
         if (symbol == null) {
             repositoryRemote.getData()
