@@ -51,6 +51,8 @@ class MainActivity : AppCompatActivity() {
         setAdapter()
         with(binding) {
             swipeRefreshLayout.setOnRefreshListener {
+                setEnabledView(false)
+                mAboutDataListener.onDataLoading()
                 mainViewModel.getRequest()
             }
             viewpager.adapter = pagerAdapter

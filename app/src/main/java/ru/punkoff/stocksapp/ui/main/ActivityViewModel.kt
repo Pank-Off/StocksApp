@@ -15,7 +15,6 @@ class ActivityViewModel(
 
     fun getRequest() {
         cancelJob()
-        stocksLiveData.value = StocksViewState.Loading
         viewModelCoroutineScope.launch(Dispatchers.IO) {
             stocksLiveData.postValue(repository.getRequest(null))
         }
