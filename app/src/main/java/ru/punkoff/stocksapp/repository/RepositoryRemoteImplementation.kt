@@ -77,7 +77,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     }
 
     companion object {
-        const val START = 0
-        private var END = 10
+        private const val START = 0
+        private const val END = 10
     }
 }
