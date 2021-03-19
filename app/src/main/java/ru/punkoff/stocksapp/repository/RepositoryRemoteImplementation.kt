@@ -1,12 +1,19 @@
 package ru.punkoff.stocksapp.repository
 
 import android.util.Log
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import retrofit2.HttpException
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.model.retrofit.StockApi
 import ru.punkoff.stocksapp.model.retrofit.StockSymbol
+import ru.punkoff.stocksapp.ui.stocks.PaginationViewStateResult
 import ru.punkoff.stocksapp.ui.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
+import java.io.IOException
 import kotlin.math.floor
+
+private const val UNSPLASH_STARTING_PAGE_INDEX = 1
 
 class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemote {
     private var stocks = mutableListOf<Stock>()
@@ -15,8 +22,52 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private suspend fun getLogo(symbol: String) = api.getLogo(symbol).await()
     private suspend fun getPrice(symbol: String) = api.getPrice(symbol).await()
 
+    private val searchResults = MutableSharedFlow<PaginationViewStateResult>(replay = 1)
+    private var isRequestInProgress = false
+
+    private var lastRequestedPage = UNSPLASH_STARTING_PAGE_INDEX
     override fun setCache(stocks: List<Stock>) {
         this.stocks = stocks as MutableList<Stock>
+    }
+
+    override suspend fun requestMore(query: String) {
+        if (isRequestInProgress) return
+        val successful = requestData(query)
+        if (successful) {
+            lastRequestedPage++
+        }
+    }
+
+    override suspend fun getSearchResultStream(query: String): Flow<PaginationViewStateResult> {
+        lastRequestedPage = 1
+        requestData(query)
+        return searchResults
+    }
+
+    private suspend fun requestData(query: String): Boolean {
+        isRequestInProgress = true
+        var successful = false
+        try {
+            val stocksSymbol =
+                api.searchPagination(query, lastRequestedPage, NETWORK_PAGE_SIZE)
+                    .subList(START, END)
+            stocksSymbol.forEach {
+                try {
+                    getDataForStock(it, stocks.size)
+                } catch (exc: HttpException) {
+                    Log.e(javaClass.simpleName, exc.stackTraceToString())
+                }
+            }
+            Log.d(javaClass.simpleName, "Stocks: ${stocks.size}")
+            searchResults.emit(PaginationViewStateResult.Success(stocks))
+            successful = true
+        } catch (exception: IOException) {
+            searchResults.emit(PaginationViewStateResult.Error(exception))
+        } catch (exception: HttpException) {
+            searchResults.emit(PaginationViewStateResult.Error(exception))
+        }
+        isRequestInProgress = false
+        return successful
     }
 
     override suspend fun getData(): StocksViewState {
@@ -24,8 +75,8 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         val stocksRequest = getStocks(Constant.EXCHANGE).subList(START, END)
         stocksRequest.forEach {
             try {
-                getDataForStock(it)
-            } catch (exc: retrofit2.HttpException) {
+                getDataForStock(it, 0)
+            } catch (exc: HttpException) {
                 Log.e(javaClass.simpleName, exc.stackTraceToString())
             }
         }
@@ -37,7 +88,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         return state
     }
 
-    private suspend fun getDataForStock(stockSymbol: StockSymbol) {
+    private suspend fun getDataForStock(stockSymbol: StockSymbol, position: Int) {
         val price = getPrice(stockSymbol.ticker)
         val logo = getLogo(stockSymbol.ticker)
         Log.d(javaClass.simpleName, "LOGO: $logo")
@@ -47,7 +98,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         }
         logo.logo?.let {
             stocks.add(
-                0,
+                position,
                 Stock(
                     stockSymbol.displaySymbol,
                     stockSymbol.name,
@@ -65,8 +116,8 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         val stocksRequest = getStockByQuery(symbol)
         stocksRequest.result.forEach {
             try {
-                getDataForStock(it)
-            } catch (exc: retrofit2.HttpException) {
+                getDataForStock(it, 0)
+            } catch (exc: HttpException) {
                 Log.e(javaClass.simpleName, exc.stackTraceToString())
             }
         }
@@ -78,6 +129,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
 
     companion object {
         private const val START = 0
-        private const val END = 10
+        private const val END = 2
+        private const val NETWORK_PAGE_SIZE = 50
     }
 }

@@ -5,6 +5,15 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface StockApi {
+
+    @GET("stock/symbol?")
+    suspend fun searchPagination(
+        @Query("exchange") exchange: String,
+        @Query("page") page: Int,
+        @Query("per_page") itemsPerPage: Int,
+        @Query("token") token: String = KEY
+    ): List<StockSymbol>
+
     @GET("stock/symbol?")
     fun getStocks(
         @Query("exchange") exchange: String,
