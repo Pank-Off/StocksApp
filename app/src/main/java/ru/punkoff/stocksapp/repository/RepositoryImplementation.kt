@@ -3,6 +3,8 @@ package ru.punkoff.stocksapp.repository
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class RepositoryImplementation(
     private val repositoryRemote: RepositoryRemote,
@@ -21,10 +23,16 @@ class RepositoryImplementation(
     }
 
     override suspend fun getRequest(symbol: String?): StocksViewState =
-        if (symbol == null) {
-            repositoryRemote.getData()
-        } else {
-            repositoryRemote.getDataBySymbol(symbol)
+        try {
+            if (symbol == null) {
+                repositoryRemote.getData()
+            } else {
+                repositoryRemote.getDataBySymbol(symbol)
+            }
+        } catch (exc: UnknownHostException) {
+            StocksViewState.Error(exc)
+        } catch (exc: SocketTimeoutException) {
+            StocksViewState.Error(exc)
         }
 
     override suspend fun saveStock(stock: Stock) {

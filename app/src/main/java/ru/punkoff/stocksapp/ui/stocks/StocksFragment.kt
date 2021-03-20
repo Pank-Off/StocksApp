@@ -73,7 +73,6 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
                     is StocksViewState.Value -> {
                         Log.d(javaClass.simpleName, it.stocks.toString())
                         adapter.setData(it.stocks)
-                        adapter.setEnabled(true)
                         adapter.filter.filter(searchView.text)
                         loadingBar.visibility = View.INVISIBLE
                     }
@@ -82,6 +81,12 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
                     }
                     StocksViewState.EMPTY -> Unit
                 }
+            }
+
+            retryBtn.setOnClickListener {
+                retryBtn.visibility = View.GONE
+                paginationLoadingBar.visibility = View.VISIBLE
+                stocksViewModel.searchStocks("US")
             }
         }
     }
@@ -109,6 +114,8 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
                         "\uD83D\uDE28 Wooops $result.message}",
                         Toast.LENGTH_LONG
                     ).show()
+                    binding.paginationLoadingBar.visibility = View.GONE
+                    binding.retryBtn.visibility = View.VISIBLE
                 }
                 is PaginationViewStateResult.Success -> {
                     Log.d(javaClass.simpleName, "SUCCESS: ${result.stocks}")
@@ -154,9 +161,12 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
     }
 
     override fun onDataReceived(stocks: List<Stock>) {
-        val stockList = mutableListOf<Stock>()
-        stockList.addAll(stocks)
-        stocksViewModel.setViewState(StocksViewState.Value(stockList))
+        adapter.setEnabled(true)
+        if (stocks.isNotEmpty()) {
+            val stockList = mutableListOf<Stock>()
+            stockList.addAll(stocks)
+            stocksViewModel.setViewState(StocksViewState.Value(stockList))
+        }
     }
 
     override fun onDataLoading() {
