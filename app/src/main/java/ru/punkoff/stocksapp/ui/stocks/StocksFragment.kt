@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
@@ -61,8 +62,11 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
         setSearchViewOptions()
         attachListenerToAdapter()
         with(binding) {
-            listStocks.adapter = adapter
+            listStocks.setHasFixedSize(true)
             listStocks.layoutManager = LinearLayoutManager(context)
+            setupScrollListener()
+
+            initAdapter()
 
             stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
                 when (it) {
@@ -77,6 +81,44 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
                         loadingBar.visibility = View.VISIBLE
                     }
                     StocksViewState.EMPTY -> Unit
+                }
+            }
+        }
+
+
+    }
+
+    private fun setupScrollListener() {
+        val layoutManager = binding.listStocks.layoutManager as LinearLayoutManager
+        binding.listStocks.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val totalItemCount = layoutManager.itemCount
+                val visibleItemCount = layoutManager.childCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                stocksViewModel.listScrolled(visibleItemCount, lastVisibleItem, totalItemCount)
+            }
+        })
+    }
+
+    private fun initAdapter() {
+        binding.listStocks.adapter = adapter
+        stocksViewModel.stocks.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is PaginationViewStateResult.Error -> {
+                    Toast.makeText(
+                        context,
+                        "\uD83D\uDE28 Wooops $result.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                is PaginationViewStateResult.Success -> {
+                    Log.d(javaClass.simpleName, "SUCCESS: ${result.stocks}")
+                    adapter.setData(result.stocks)
+                    adapter.filter.filter(searchView.text)
+                    binding.listStocks.visibility = View.VISIBLE
+                    binding.loadingBar.visibility = View.INVISIBLE
                 }
             }
         }

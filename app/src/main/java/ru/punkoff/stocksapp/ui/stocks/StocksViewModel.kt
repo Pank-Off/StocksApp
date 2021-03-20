@@ -1,7 +1,7 @@
 package ru.punkoff.stocksapp.ui.stocks
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -14,6 +14,14 @@ class StocksViewModel(
     private val repository: Repository
 ) : BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
+
+    private val currentQuery = MutableLiveData(DEFAULT_QUERY)
+    val stocks: LiveData<PaginationViewStateResult> = currentQuery.switchMap {
+        liveData {
+            val repos = repository.getSearchResultStream(it).asLiveData(Dispatchers.Main)
+            emitSource(repos)
+        }
+    }
 
     init {
         var stocks = emptyList<Stock>()
@@ -28,6 +36,21 @@ class StocksViewModel(
                 stocksLiveData.value = StocksViewState.Value(stocks)
             } else {
                 getRequest()
+            }
+        }
+    }
+
+    fun searchStocks(query: String) {
+        currentQuery.value = query
+    }
+
+    fun listScrolled(visibleItemCount: Int, lastVisibleItemPosition: Int, totalItemCount: Int) {
+        if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
+            val immutableQuery = currentQuery.value
+            if (immutableQuery != null) {
+                viewModelScope.launch {
+                    repository.requestMore(immutableQuery)
+                }
             }
         }
     }
@@ -65,5 +88,10 @@ class StocksViewModel(
 
     fun setViewState(state: StocksViewState) {
         stocksLiveData.value = state
+    }
+
+    companion object {
+        private const val DEFAULT_QUERY = "US"
+        private const val VISIBLE_THRESHOLD = 5
     }
 }

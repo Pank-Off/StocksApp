@@ -51,9 +51,9 @@ class MainActivity : AppCompatActivity() {
         setAdapter()
         with(binding) {
             swipeRefreshLayout.setOnRefreshListener {
-                mainViewModel.getRequest()
                 setEnabledView(false)
                 mAboutDataListener.onDataLoading()
+                mainViewModel.getRequest()
             }
             viewpager.adapter = pagerAdapter
             TabLayoutMediator(tabLayout, viewpager) { tab, position ->
@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity() {
                         swipeRefreshLayout.isEnabled = false
                         loadingBar.visibility = View.VISIBLE
                         popularSearchLayout.visibility = View.GONE
+                        mAboutDataListener.onDataLoading()
                     }
                     is StocksViewState.Value -> {
                         swipeRefreshLayout.isRefreshing = false

@@ -2,11 +2,8 @@ package ru.punkoff.stocksapp.utils
 
 import android.util.Log
 import android.widget.ImageView
-import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import ru.punkoff.stocksapp.R
-import java.lang.Exception
-import java.lang.IllegalArgumentException
 
 object PicassoLoader {
 

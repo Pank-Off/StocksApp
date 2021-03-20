@@ -9,8 +9,15 @@ class RepositoryImplementation(
     private val repositoryLocal: RepositoryLocal
 ) : Repository {
 
+    override suspend fun getSearchResultStream(query: String) =
+        repositoryRemote.getSearchResultStream(query)
+
     override fun setCache(stocks: List<Stock>) {
         repositoryRemote.setCache(stocks)
+    }
+
+    override suspend fun requestMore(query: String) {
+        repositoryRemote.requestMore(query)
     }
 
     override suspend fun getRequest(symbol: String?): StocksViewState =

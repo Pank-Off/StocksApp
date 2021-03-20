@@ -10,6 +10,7 @@ import android.widget.Filterable
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ItemStockBinding
@@ -19,7 +20,16 @@ import ru.punkoff.stocksapp.utils.PicassoLoader
 import java.util.*
 import kotlin.collections.ArrayList
 
-class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Filterable {
+val STOCK_COMPARATOR = object : DiffUtil.ItemCallback<Stock>() {
+    override fun areItemsTheSame(oldItem: Stock, newItem: Stock): Boolean =
+        oldItem.ticker == newItem.ticker
+
+    override fun areContentsTheSame(oldItem: Stock, newItem: Stock): Boolean =
+        oldItem == newItem
+}
+
+class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(STOCK_COMPARATOR),
+    Filterable {
 
     private lateinit var onStockListener: OnStockClickListener
     private lateinit var onStarListener: OnStarClickListener
@@ -125,6 +135,7 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
         init {
             favourite.setOnClickListener(starClickListener)
         }
+
     }
 
     override fun getFilter(): Filter {
@@ -162,3 +173,4 @@ class StocksAdapter : RecyclerView.Adapter<StocksAdapter.StocksViewHolder>(), Fi
         }
     }
 }
+
