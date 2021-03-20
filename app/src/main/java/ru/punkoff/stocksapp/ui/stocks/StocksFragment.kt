@@ -84,8 +84,6 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
                 }
             }
         }
-
-
     }
 
     private fun setupScrollListener() {
@@ -96,7 +94,6 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
                 val totalItemCount = layoutManager.itemCount
                 val visibleItemCount = layoutManager.childCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-
                 stocksViewModel.listScrolled(visibleItemCount, lastVisibleItem, totalItemCount)
             }
         })
@@ -127,6 +124,14 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
     private fun setSearchViewOptions() {
         searchView = requireActivity().findViewById(R.id.textInputSearch)
         searchView.addTextChangedListener(searchViewTextWatcher)
+
+        searchView.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                binding.paginationLoadingBar.visibility = View.GONE
+            } else {
+                binding.paginationLoadingBar.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun attachListenerToAdapter() {

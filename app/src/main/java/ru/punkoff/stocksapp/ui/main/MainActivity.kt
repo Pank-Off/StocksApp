@@ -147,9 +147,7 @@ class MainActivity : AppCompatActivity() {
     private fun setAdapter() {
         adapter.attachListener(object : OnButtonClickListener {
             override fun onClick(name: String) {
-                with(binding) {
-                    textInputSearch.setText(name)
-                }
+                binding.textInputSearch.setText(name)
                 mainViewModel.getRequestBySymbol(name)
             }
         })
