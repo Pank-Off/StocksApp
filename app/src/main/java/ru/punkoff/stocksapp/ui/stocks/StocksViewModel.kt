@@ -9,6 +9,7 @@ import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.repository.Repository
 import ru.punkoff.stocksapp.ui.base.BaseViewModel
+import ru.punkoff.stocksapp.utils.Constant
 
 class StocksViewModel(
     private val repository: Repository
@@ -16,7 +17,7 @@ class StocksViewModel(
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
     private val currentQuery = MutableLiveData(DEFAULT_QUERY)
-    val stocks: LiveData<PaginationViewStateResult> = currentQuery.switchMap {
+    val stocksPaginationLiveData: LiveData<PaginationViewStateResult> = currentQuery.switchMap {
         liveData {
             val repos = repository.getSearchResultStream(it).asLiveData(Dispatchers.Main)
             emitSource(repos)
@@ -40,18 +41,10 @@ class StocksViewModel(
         }
     }
 
-    fun searchStocks(query: String) {
-        currentQuery.value = query
-    }
-
-    fun listScrolled(visibleItemCount: Int, lastVisibleItemPosition: Int, totalItemCount: Int) {
-        if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
-            val immutableQuery = currentQuery.value
-            if (immutableQuery != null) {
-                viewModelScope.launch {
-                    repository.requestMore(immutableQuery)
-                }
-            }
+    private fun getRequest() {
+        cancelJob()
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
+            stocksLiveData.postValue(repository.getRequest())
         }
     }
 
@@ -77,10 +70,18 @@ class StocksViewModel(
         }
     }
 
-    private fun getRequest() {
-        cancelJob()
-        viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stocksLiveData.postValue(repository.getRequest())
+    fun searchStocks(query: String) {
+        currentQuery.value = query
+    }
+
+    fun listScrolled(visibleItemCount: Int, lastVisibleItemPosition: Int, totalItemCount: Int) {
+        if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
+            val immutableQuery = currentQuery.value
+            if (immutableQuery != null) {
+                viewModelScope.launch {
+                    repository.requestMore(immutableQuery)
+                }
+            }
         }
     }
 
@@ -91,7 +92,7 @@ class StocksViewModel(
     }
 
     companion object {
-        private const val DEFAULT_QUERY = "US"
+        private const val DEFAULT_QUERY = Constant.EXCHANGE
         private const val VISIBLE_THRESHOLD = 5
     }
 }

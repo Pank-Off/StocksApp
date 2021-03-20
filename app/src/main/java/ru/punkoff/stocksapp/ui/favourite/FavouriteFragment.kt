@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.tabs.TabLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.textfield.TextInputEditText
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
@@ -27,7 +27,7 @@ class FavouriteFragment : Fragment() {
     private var _binding: FavouriteFragmentBinding? = null
     private val binding: FavouriteFragmentBinding get() = _binding!!
     private lateinit var searchView: TextInputEditText
-    private lateinit var tabLayout: TabLayout
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val searchViewTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
         }
@@ -51,8 +51,8 @@ class FavouriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        swipeRefreshLayout = requireActivity().findViewById(R.id.swipe_refresh_layout)
         initSearchView()
-        initTabLayout()
         attachListenerToAdapter()
         with(binding) {
             listStocks.adapter = adapter
@@ -69,24 +69,11 @@ class FavouriteFragment : Fragment() {
                 }
             }
         }
-        favouriteViewModel.getStocksFromDB()
     }
 
     private fun initSearchView() {
         searchView = requireActivity().findViewById(R.id.textInputSearch)
         searchView.addTextChangedListener(searchViewTextWatcher)
-    }
-
-    private fun initTabLayout() {
-        tabLayout = requireActivity().findViewById(R.id.tab_layout)
-        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                favouriteViewModel.getStocksFromDB()
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
     }
 
     private fun attachListenerToAdapter() {
@@ -108,8 +95,20 @@ class FavouriteFragment : Fragment() {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        favouriteViewModel.getStocksFromDB()
+        swipeRefreshLayout.isEnabled = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        swipeRefreshLayout.isEnabled = true
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }

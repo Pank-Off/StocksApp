@@ -1,9 +1,10 @@
 package ru.punkoff.stocksapp.utils
 
-import android.graphics.drawable.Drawable
+import android.annotation.SuppressLint
 import android.view.MotionEvent
 import com.google.android.material.textfield.TextInputEditText
 
+@SuppressLint("ClickableViewAccessibility")
 fun TextInputEditText.onLeftDrawableClicked(onClicked: (view: TextInputEditText) -> Unit) {
     this.setOnTouchListener { v, event ->
         var hasConsumed = false

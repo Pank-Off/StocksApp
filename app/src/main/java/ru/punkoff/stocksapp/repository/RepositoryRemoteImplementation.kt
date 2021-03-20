@@ -13,7 +13,7 @@ import ru.punkoff.stocksapp.utils.Constant
 import java.io.IOException
 import kotlin.math.floor
 
-private const val UNSPLASH_STARTING_PAGE_INDEX = 1
+private const val FINHUB_STARTING_PAGE_INDEX = 1
 
 class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemote {
     private var stocks = mutableListOf<Stock>()
@@ -25,7 +25,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private val searchResults = MutableSharedFlow<PaginationViewStateResult>(replay = 1)
     private var isRequestInProgress = false
 
-    private var lastRequestedPage = UNSPLASH_STARTING_PAGE_INDEX
+    private var lastRequestedPage = FINHUB_STARTING_PAGE_INDEX
     override fun setCache(stocks: List<Stock>) {
         this.stocks = stocks as MutableList<Stock>
     }
@@ -75,7 +75,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         val stocksRequest = getStocks(Constant.EXCHANGE).subList(START, END)
         stocksRequest.forEach {
             try {
-                getDataForStock(it, 0)
+                getDataForStock(it)
             } catch (exc: HttpException) {
                 Log.e(javaClass.simpleName, exc.stackTraceToString())
             }
@@ -88,7 +88,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         return state
     }
 
-    private suspend fun getDataForStock(stockSymbol: StockSymbol, position: Int) {
+    private suspend fun getDataForStock(stockSymbol: StockSymbol, position: Int = 0) {
         val price = getPrice(stockSymbol.ticker)
         val logo = getLogo(stockSymbol.ticker)
         Log.d(javaClass.simpleName, "LOGO: $logo")
