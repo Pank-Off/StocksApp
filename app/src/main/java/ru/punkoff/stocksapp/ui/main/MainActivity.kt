@@ -66,25 +66,7 @@ class MainActivity : AppCompatActivity() {
                     FragmentTypeEnum.FAVOURITE -> tab.text = getString(R.string.favourite)
                 }
             }.attach()
-            textFieldSearch.setOnFocusChangeListener { v, hasFocus ->
-                if (hasFocus) {
-                    textFieldSearch.setStartIconDrawable(android.R.drawable.ic_menu_search)
-                    tabLayout.visibility = View.VISIBLE
-                    viewpager.visibility = View.VISIBLE
-                    popularSearchLayout.visibility = View.GONE
-                } else {
-                    textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
-                    tabLayout.visibility = View.GONE
-                    viewpager.visibility = View.GONE
-                    popularSearchLayout.visibility = View.VISIBLE
-                }
-            }
 
-            textInputSearch.onLeftDrawableClicked {
-                hideKeyboard(this@MainActivity)
-                textInputSearch.clearFocus()
-                textInputSearch.text?.clear()
-            }
             mainViewModel.observeViewState().observe(this@MainActivity) {
                 when (it) {
                     StocksViewState.EMPTY -> Unit
@@ -96,9 +78,9 @@ class MainActivity : AppCompatActivity() {
                         mAboutDataListener.onDataLoading()
                     }
                     is StocksViewState.Value -> {
-                        swipeRefreshLayout.isRefreshing = false
-                        swipeRefreshLayout.isEnabled = true
                         setEnabledView(true)
+                        swipeRefreshLayout.isEnabled = true
+                        swipeRefreshLayout.isRefreshing = false
                         loadingBar.visibility = View.GONE
                         viewpager.visibility = View.VISIBLE
                         mAboutDataListener.onDataReceived(it.stocks)
@@ -116,9 +98,9 @@ class MainActivity : AppCompatActivity() {
                                 Toast.LENGTH_LONG
                             ).show()
                         }
-                        swipeRefreshLayout.isRefreshing = false
-                        swipeRefreshLayout.isEnabled = true
                         setEnabledView(true)
+                        swipeRefreshLayout.isEnabled = true
+                        swipeRefreshLayout.isRefreshing = false
                         loadingBar.visibility = View.GONE
                         viewpager.visibility = View.VISIBLE
                         mAboutDataListener.onDataReceived(emptyList())
@@ -148,6 +130,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun setOptionsForSearchView() {
         with(binding) {
+            textFieldSearch.setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) {
+                    textFieldSearch.setStartIconDrawable(android.R.drawable.ic_menu_search)
+                    tabLayout.visibility = View.VISIBLE
+                    viewpager.visibility = View.VISIBLE
+                    popularSearchLayout.visibility = View.GONE
+                } else {
+                    textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
+                    tabLayout.visibility = View.GONE
+                    viewpager.visibility = View.GONE
+                    popularSearchLayout.visibility = View.VISIBLE
+                }
+            }
+
+            textInputSearch.onLeftDrawableClicked {
+                hideKeyboard(this@MainActivity)
+                textInputSearch.clearFocus()
+                textInputSearch.text?.clear()
+            }
             textInputSearch.addTextChangedListener(searchViewTextWatcher)
             textInputSearch.setOnEditorActionListener(object : TextView.OnEditorActionListener {
                 override fun onEditorAction(

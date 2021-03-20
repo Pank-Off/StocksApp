@@ -20,6 +20,7 @@ import ru.punkoff.stocksapp.ui.main.MainActivity
 import ru.punkoff.stocksapp.ui.main.OnAboutDataReceivedListener
 import ru.punkoff.stocksapp.ui.stocks.adapter.OnStarClickListener
 import ru.punkoff.stocksapp.ui.stocks.adapter.StocksAdapter
+import ru.punkoff.stocksapp.utils.Constant
 
 
 class StocksFragment : Fragment(), OnAboutDataReceivedListener {
@@ -86,7 +87,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
             retryBtn.setOnClickListener {
                 retryBtn.visibility = View.GONE
                 paginationLoadingBar.visibility = View.VISIBLE
-                stocksViewModel.searchStocks("US")
+                stocksViewModel.searchStocks(Constant.EXCHANGE)
             }
         }
     }
@@ -106,7 +107,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
 
     private fun initAdapter() {
         binding.listStocks.adapter = adapter
-        stocksViewModel.stocks.observe(viewLifecycleOwner) { result ->
+        stocksViewModel.stocksPaginationLiveData.observe(viewLifecycleOwner) { result ->
             when (result) {
                 is PaginationViewStateResult.Error -> {
                     Toast.makeText(
