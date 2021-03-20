@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.android.material.tabs.TabLayoutMediator
@@ -20,6 +21,8 @@ import ru.punkoff.stocksapp.ui.main.adapter.PopularSearchAdapter
 import ru.punkoff.stocksapp.ui.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.hideKeyboard
 import ru.punkoff.stocksapp.utils.onLeftDrawableClicked
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class MainActivity : AppCompatActivity() {
 
@@ -85,7 +88,7 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.observeViewState().observe(this@MainActivity) {
                 when (it) {
                     StocksViewState.EMPTY -> Unit
-                    StocksViewState.Loading -> {
+                    is StocksViewState.Loading -> {
                         setEnabledView(false)
                         swipeRefreshLayout.isEnabled = false
                         loadingBar.visibility = View.VISIBLE
@@ -99,6 +102,26 @@ class MainActivity : AppCompatActivity() {
                         loadingBar.visibility = View.GONE
                         viewpager.visibility = View.VISIBLE
                         mAboutDataListener.onDataReceived(it.stocks)
+                    }
+                    is StocksViewState.Error -> {
+                        when (it.error) {
+                            is UnknownHostException -> Toast.makeText(
+                                this@MainActivity,
+                                getString(R.string.check_internet),
+                                Toast.LENGTH_LONG
+                            ).show()
+                            is SocketTimeoutException -> Toast.makeText(
+                                this@MainActivity,
+                                getString(R.string.timeout),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        swipeRefreshLayout.isRefreshing = false
+                        swipeRefreshLayout.isEnabled = true
+                        setEnabledView(true)
+                        loadingBar.visibility = View.GONE
+                        viewpager.visibility = View.VISIBLE
+                        mAboutDataListener.onDataReceived(emptyList())
                     }
                 }
             }

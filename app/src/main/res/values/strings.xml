@@ -6,4 +6,7 @@
     <string name="hint_edit_text">Find company or ticker</string>
     <string name="popular_requests">Popular requests</string>
     <string name="you_ve_searched_for_this">You’ve searched for this</string>
+    <string name="retry">Retry</string>
+    <string name="check_internet">Check your internet connection!</string>
+    <string name="timeout">TimeoutException</string>
 </resources>
