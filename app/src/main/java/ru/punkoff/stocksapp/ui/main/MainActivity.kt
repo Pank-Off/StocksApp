@@ -18,6 +18,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ActivityMainBinding
+import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.main.adapter.OnButtonClickListener
 import ru.punkoff.stocksapp.ui.main.adapter.PopularSearchAdapter
 import ru.punkoff.stocksapp.ui.main.adapter.RecentSearchAdapter
@@ -212,6 +213,10 @@ class MainActivity : AppCompatActivity() {
 
     fun setAboutDataListener(listener: OnAboutDataReceivedListener) {
         mAboutDataListener = listener
+    }
+
+    fun onDataChange(stock: Stock) {
+        mAboutDataListener.onDataChange(stock)
     }
 
     override fun onStop() {

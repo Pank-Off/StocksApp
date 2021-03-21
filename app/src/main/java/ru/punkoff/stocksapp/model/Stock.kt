@@ -11,6 +11,6 @@ data class Stock(
     val stock: Double,
     val logo: String,
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    var id: Int = 0,
     var isFavourite: Boolean = false
 )

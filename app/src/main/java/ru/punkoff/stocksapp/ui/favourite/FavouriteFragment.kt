@@ -16,6 +16,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.FavouriteFragmentBinding
 import ru.punkoff.stocksapp.model.Stock
+import ru.punkoff.stocksapp.ui.main.MainActivity
 import ru.punkoff.stocksapp.ui.stocks.StocksViewState
 import ru.punkoff.stocksapp.ui.stocks.adapter.OnStarClickListener
 import ru.punkoff.stocksapp.ui.stocks.adapter.StocksAdapter
@@ -28,6 +29,7 @@ class FavouriteFragment : Fragment() {
     private val binding: FavouriteFragmentBinding get() = _binding!!
     private lateinit var searchView: TextInputEditText
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var activity: MainActivity
     private val searchViewTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
         }
@@ -38,6 +40,11 @@ class FavouriteFragment : Fragment() {
 
         override fun afterTextChanged(p0: Editable?) {
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        activity = getActivity() as MainActivity
     }
 
     override fun onCreateView(
@@ -83,6 +90,7 @@ class FavouriteFragment : Fragment() {
 
         adapter.attachStarListener(object : OnStarClickListener {
             override fun deleteStock(stock: Stock) {
+                activity.onDataChange(stock)
                 stock.isFavourite = false
                 favouriteViewModel.deleteFromDB(stock)
             }
