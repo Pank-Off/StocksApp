@@ -1,5 +1,7 @@
 package ru.punkoff.stocksapp.ui.main
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -18,7 +20,9 @@ import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ActivityMainBinding
 import ru.punkoff.stocksapp.ui.main.adapter.OnButtonClickListener
 import ru.punkoff.stocksapp.ui.main.adapter.PopularSearchAdapter
+import ru.punkoff.stocksapp.ui.main.adapter.RecentSearchAdapter
 import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.utils.hideKeyboard
 import ru.punkoff.stocksapp.utils.onLeftDrawableClicked
 import java.net.SocketTimeoutException
@@ -29,7 +33,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mAboutDataListener: OnAboutDataReceivedListener
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel by viewModel<ActivityViewModel>()
-    val adapter = PopularSearchAdapter()
+    private val popularSearchAdapter = PopularSearchAdapter()
+    private val recentSearchAdapter = RecentSearchAdapter()
+    private lateinit var mSettings: SharedPreferences
     private val searchViewTextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
         }
@@ -49,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
+        initSharedPreferences()
         supportActionBar?.setDisplayShowTitleEnabled(false)
         val pagerAdapter = MyPagerAdapter(this)
         setAdapter()
@@ -112,6 +119,16 @@ class MainActivity : AppCompatActivity() {
         setOptionsForSearchView()
     }
 
+    private fun initSharedPreferences() {
+        mSettings = getSharedPreferences(Constant.APP_PREFERENCES, Context.MODE_PRIVATE)
+        if (mSettings.contains(Constant.RECENT_SEARCH_LIST)) {
+            val recent = mSettings.getStringSet(Constant.RECENT_SEARCH_LIST, emptySet())
+            if (recent != null) {
+                recentSearchAdapter.initialSetData(recent)
+            }
+        }
+    }
+
     private fun setEnabledView(isEnabled: Boolean) {
         with(binding) {
             textFieldSearch.isEnabled = isEnabled
@@ -159,6 +176,7 @@ class MainActivity : AppCompatActivity() {
                     if (keyEvent != null) {
                         if (!keyEvent.isShiftPressed && textInputSearch.text != null && textInputSearch.text.toString() != "") {
                             mainViewModel.getRequestBySymbol(textInputSearch.text.toString())
+                            recentSearchAdapter.setData(textInputSearch.text.toString())
                         }
                         return true
                     }
@@ -169,17 +187,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setAdapter() {
-        adapter.attachListener(object : OnButtonClickListener {
+        popularSearchAdapter.attachListener(object : OnButtonClickListener {
+            override fun onClick(name: String) {
+                binding.textInputSearch.setText(name)
+                recentSearchAdapter.setData(name)
+                mainViewModel.getRequestBySymbol(name)
+            }
+        })
+        recentSearchAdapter.attachListener(object : OnButtonClickListener {
             override fun onClick(name: String) {
                 binding.textInputSearch.setText(name)
                 mainViewModel.getRequestBySymbol(name)
             }
         })
         with(binding) {
-            listPopularBtn.adapter = adapter
+            listPopularBtn.adapter = popularSearchAdapter
             listPopularBtn.layoutManager =
                 StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
-            listRecentBtn.adapter = adapter
+            listRecentBtn.adapter = recentSearchAdapter
             listRecentBtn.layoutManager =
                 StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
         }
@@ -187,5 +212,13 @@ class MainActivity : AppCompatActivity() {
 
     fun setAboutDataListener(listener: OnAboutDataReceivedListener) {
         mAboutDataListener = listener
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mSettings.edit().apply {
+            remove(Constant.RECENT_SEARCH_LIST).apply()
+            putStringSet(Constant.RECENT_SEARCH_LIST, recentSearchAdapter.getData()).apply()
+        }
     }
 }
