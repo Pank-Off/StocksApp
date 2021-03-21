@@ -178,6 +178,7 @@ class MainActivity : AppCompatActivity() {
                         if (!keyEvent.isShiftPressed && textInputSearch.text != null && textInputSearch.text.toString() != "") {
                             mainViewModel.getRequestBySymbol(textInputSearch.text.toString())
                             recentSearchAdapter.setData(textInputSearch.text.toString())
+                            viewpager.currentItem = FragmentTypeEnum.STOCKS.ordinal
                         }
                         return true
                     }
@@ -191,6 +192,7 @@ class MainActivity : AppCompatActivity() {
         popularSearchAdapter.attachListener(object : OnButtonClickListener {
             override fun onClick(name: String) {
                 binding.textInputSearch.setText(name)
+                binding.viewpager.currentItem = FragmentTypeEnum.STOCKS.ordinal
                 recentSearchAdapter.setData(name)
                 mainViewModel.getRequestBySymbol(name)
             }
@@ -198,6 +200,7 @@ class MainActivity : AppCompatActivity() {
         recentSearchAdapter.attachListener(object : OnButtonClickListener {
             override fun onClick(name: String) {
                 binding.textInputSearch.setText(name)
+                binding.viewpager.currentItem = FragmentTypeEnum.STOCKS.ordinal
                 mainViewModel.getRequestBySymbol(name)
             }
         })
