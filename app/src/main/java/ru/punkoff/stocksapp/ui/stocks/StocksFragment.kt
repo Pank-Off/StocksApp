@@ -174,6 +174,10 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
         adapter.setEnabled(false)
     }
 
+    override fun onDataChange(stock: Stock) {
+        adapter.setItemChange(stock)
+    }
+
     override fun onStop() {
         super.onStop()
         stocksViewModel.saveCache(adapter.getData())

@@ -59,6 +59,13 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(STOCK_C
         diffResult.dispatchUpdatesTo(this)
     }
 
+    fun setItemChange(stock: Stock) {
+        stock.id = 0
+        val position = stockList.indexOf(stock)
+        stockList[position].isFavourite = false
+        notifyItemChanged(position)
+    }
+
     fun getData() = stockList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StocksViewHolder {
