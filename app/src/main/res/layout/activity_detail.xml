@@ -23,7 +23,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="18dp"
             android:textColor="@color/black"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:textStyle="bold"
             tools:text="APPL" />
 
@@ -34,7 +34,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="4dp"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="18sp"
             tools:text="Apple Inc." />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -87,10 +87,11 @@
 
         <com.jjoe64.graphview.GraphView
             android:id="@+id/graph"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="260dp"
             android:layout_gravity="bottom"
-            android:layout_marginBottom="100dp"
+            android:layout_marginStart="-10dp"
+            android:layout_marginBottom="50dp"
             android:visibility="invisible"
             app:layout_constraintBottom_toTopOf="@+id/buy_btn"
             app:layout_constraintEnd_toEndOf="parent"
@@ -100,9 +101,9 @@
             android:id="@+id/buy_btn"
             style="@style/CustomBuyButton"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="BUY" />
+            app:layout_constraintEnd_toEndOf="@id/graph"
+            app:layout_constraintStart_toStartOf="@id/graph"
+            tools:text="Buy" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ProgressBar

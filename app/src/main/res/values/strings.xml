@@ -10,4 +10,6 @@
     <string name="check_internet">Check your internet connection!</string>
     <string name="timeout">TimeoutException</string>
     <string name="there_is_no_data_to_display_the_graph">There is no data to display the graph 😨</string>
+    <string name="price">Price</string>
+    <string name="time">Time</string>
 </resources>
