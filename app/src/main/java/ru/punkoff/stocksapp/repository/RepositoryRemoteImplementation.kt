@@ -102,8 +102,9 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
                 Stock(
                     stockSymbol.displaySymbol,
                     stockSymbol.name,
-                    floor(price.currentPrice * 1000) / 1000,
-                    floor(percent * 1000) / 1000,
+                    floor(price.currentPrice * 100) / 100,
+                    floor((price.currentPrice - price.previousPrice) * 100) / 100,
+                    floor(percent * 100) / 100,
                     it
                 )
             )

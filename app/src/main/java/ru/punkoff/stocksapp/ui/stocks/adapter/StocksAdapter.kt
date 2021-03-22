@@ -108,12 +108,16 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(STOCK_C
             currentPosition = position
             currentStock = currentItem
             with(binding) {
+                val currentPrice = StringBuilder("$")
+                currentPrice.append(currentItem.price)
+                val changeStock = StringBuilder(currentItem.difPrice.toString())
+                changeStock.append(" (${currentItem.stock}%)")
                 root.isEnabled = isEnabled
                 favorite.isEnabled = isEnabled
                 ticker.text = currentItem.ticker
                 name.text = currentItem.name
-                price.text = currentItem.price.toString()
-                stock.text = currentItem.stock.toString()
+                price.text = currentPrice
+                stock.text = changeStock
                 if (currentItem.isFavourite) {
                     favourite.background =
                         ContextCompat.getDrawable(favourite.context, android.R.drawable.star_on)
