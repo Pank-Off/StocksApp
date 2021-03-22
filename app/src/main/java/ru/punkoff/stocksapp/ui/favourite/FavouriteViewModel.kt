@@ -16,7 +16,7 @@ class FavouriteViewModel(private val stockDao: StockDao) : BaseViewModel() {
         stocksLiveData.postValue(StocksViewState.Loading)
         viewModelCoroutineScope.launch(Dispatchers.IO) {
             Log.d(javaClass.simpleName, "From room: ${stockDao.getStocks()}")
-            stocksLiveData.postValue(StocksViewState.Value(stockDao.getStocks().reversed()))
+            stocksLiveData.postValue(StocksViewState.StockValue(stockDao.getStocks().reversed()))
         }
     }
 

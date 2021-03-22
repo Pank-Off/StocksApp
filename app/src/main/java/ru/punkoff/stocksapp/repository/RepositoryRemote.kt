@@ -7,8 +7,12 @@ import ru.punkoff.stocksapp.ui.stocks.StocksViewState
 
 interface RepositoryRemote {
 
+    suspend fun getCandlesData(ticker: String): StocksViewState
+
     suspend fun requestMore(query: String)
+
     suspend fun getSearchResultStream(query: String): Flow<PaginationViewStateResult>
+
     fun setCache(stocks: List<Stock>)
 
     suspend fun getData(): StocksViewState

@@ -21,6 +21,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private suspend fun getStockByQuery(symbol: String) = api.getStockByQuery(symbol).await()
     private suspend fun getLogo(symbol: String) = api.getLogo(symbol).await()
     private suspend fun getPrice(symbol: String) = api.getPrice(symbol).await()
+    private suspend fun getCandles(symbol: String) = api.getCandles(symbol).await()
 
     private val searchResults = MutableSharedFlow<PaginationViewStateResult>(replay = 1)
     private var isRequestInProgress = false
@@ -28,6 +29,15 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private var lastRequestedPage = FINHUB_STARTING_PAGE_INDEX
     override fun setCache(stocks: List<Stock>) {
         this.stocks = stocks as MutableList<Stock>
+    }
+
+    override suspend fun getCandlesData(ticker: String): StocksViewState {
+        var state: StocksViewState = StocksViewState.EMPTY
+        val candle = getCandles(ticker)
+        if (candle.exist != Constant.NO_DATA) {
+            state = StocksViewState.CandleValue(candle)
+        }
+        return state
     }
 
     override suspend fun requestMore(query: String) {
@@ -83,7 +93,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
 
         Log.d(javaClass.simpleName, "Stocks: ${stocks.size}")
         if (stocks.isNotEmpty()) {
-            state = StocksViewState.Value(stocks)
+            state = StocksViewState.StockValue(stocks)
         }
         return state
     }
@@ -123,7 +133,7 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
             }
         }
         if (stocks.isNotEmpty()) {
-            state = StocksViewState.Value(stocks)
+            state = StocksViewState.StockValue(stocks)
         }
         return state
     }

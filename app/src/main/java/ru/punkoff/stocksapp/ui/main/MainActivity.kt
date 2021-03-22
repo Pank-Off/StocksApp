@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
                         popularSearchLayout.visibility = View.GONE
                         mAboutDataListener.onDataLoading()
                     }
-                    is StocksViewState.Value -> {
+                    is StocksViewState.StockValue -> {
                         setEnabledView(true)
                         swipeRefreshLayout.isEnabled = true
                         swipeRefreshLayout.isRefreshing = false

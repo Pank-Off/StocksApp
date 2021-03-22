@@ -10,6 +10,8 @@ interface Repository {
 
     fun setCache(stocks: List<Stock>)
 
+    suspend fun getCandles(ticker: String): StocksViewState
+
     suspend fun requestMore(query: String)
 
     suspend fun getSearchResultStream(query: String): Flow<PaginationViewStateResult>

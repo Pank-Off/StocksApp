@@ -1,5 +1,6 @@
 package ru.punkoff.stocksapp.ui.stocks
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,6 +17,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.StocksFragmentBinding
 import ru.punkoff.stocksapp.model.Stock
+import ru.punkoff.stocksapp.ui.detail.DetailActivity
 import ru.punkoff.stocksapp.ui.main.MainActivity
 import ru.punkoff.stocksapp.ui.main.OnAboutDataReceivedListener
 import ru.punkoff.stocksapp.ui.stocks.adapter.OnStarClickListener
@@ -71,7 +73,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
 
             stocksViewModel.observeViewState().observe(viewLifecycleOwner) {
                 when (it) {
-                    is StocksViewState.Value -> {
+                    is StocksViewState.StockValue -> {
                         Log.d(javaClass.simpleName, it.stocks.toString())
                         adapter.setData(it.stocks)
                         adapter.filter.filter(searchView.text)
@@ -144,7 +146,9 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
 
     private fun attachListenerToAdapter() {
         adapter.attachListener { item, position ->
-            Toast.makeText(context, position.toString(), Toast.LENGTH_SHORT).show()
+            val intent = Intent(context, DetailActivity::class.java)
+            intent.putExtra(Constant.EXTRA_STOCK, item)
+            startActivity(intent)
         }
 
         adapter.attachStarListener(object : OnStarClickListener {
@@ -166,7 +170,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
         if (stocks.isNotEmpty()) {
             val stockList = mutableListOf<Stock>()
             stockList.addAll(stocks)
-            stocksViewModel.setViewState(StocksViewState.Value(stockList))
+            stocksViewModel.setViewState(StocksViewState.StockValue(stockList))
         }
     }
 

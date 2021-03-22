@@ -34,7 +34,7 @@ class StocksViewModel(
                 Log.d(javaClass.simpleName, "Cache: $stocks")
             }.join()
             if (stocks.isNotEmpty()) {
-                stocksLiveData.value = StocksViewState.Value(stocks)
+                stocksLiveData.value = StocksViewState.StockValue(stocks)
             } else {
                 getRequest()
             }

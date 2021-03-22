@@ -3,6 +3,7 @@ package ru.punkoff.stocksapp.model.retrofit
 import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
 import retrofit2.http.Query
+import ru.punkoff.stocksapp.utils.Constant
 
 interface StockApi {
 
@@ -37,6 +38,15 @@ interface StockApi {
         @Query("q") symbol: String,
         @Query("token") token: String = KEY
     ): Deferred<StockLookup>
+
+    @GET("stock/candle?")
+    fun getCandles(
+        @Query("symbol") symbol: String,
+        @Query("resolution") resolution: String = Constant.RESOLUTION,
+        @Query("from") from: Long = Constant.CANDLE_FROM_TIME,
+        @Query("to") to: Long = Constant.CANDLE_TO_TIME,
+        @Query("token") token: String = KEY
+    ): Deferred<Candle>
 
     companion object {
         private const val KEY = "c10fsj748v6oijd8e5gg"
