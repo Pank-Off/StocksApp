@@ -11,13 +11,16 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.punkoff.stocksapp.utils.Constant
-import ru.punkoff.stocksapp.model.retrofit.StockApi
-import ru.punkoff.stocksapp.model.room.AppDatabase
+import ru.punkoff.stocksapp.retrofit.StockApi
+import ru.punkoff.stocksapp.room.AppDatabase
 import ru.punkoff.stocksapp.repository.*
-import ru.punkoff.stocksapp.ui.detail.DetailViewModel
-import ru.punkoff.stocksapp.ui.favourite.FavouriteViewModel
-import ru.punkoff.stocksapp.ui.main.ActivityViewModel
-import ru.punkoff.stocksapp.ui.stocks.StocksViewModel
+import ru.punkoff.stocksapp.ui.detail.fragments.chart.ChartViewModel
+import ru.punkoff.stocksapp.ui.detail.activity.DetailViewModel
+import ru.punkoff.stocksapp.ui.detail.fragments.cats.CatsViewModel
+import ru.punkoff.stocksapp.ui.detail.fragments.news.NewsViewModel
+import ru.punkoff.stocksapp.ui.main.fragments.favourite.FavouriteViewModel
+import ru.punkoff.stocksapp.ui.main.activity.ActivityViewModel
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewModel
 import java.util.concurrent.TimeUnit
 
 object DependencyGraph {
@@ -86,6 +89,17 @@ object DependencyGraph {
 
             viewModel {
                 DetailViewModel(get())
+            }
+
+            viewModel {
+                ChartViewModel(get())
+            }
+
+            viewModel {
+                NewsViewModel(get())
+            }
+            viewModel {
+                CatsViewModel(get())
             }
         }
     }

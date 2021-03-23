@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.model.room.StockDao
+import ru.punkoff.stocksapp.room.StockDao
 
 class RepositoryLocalImplementation(private val stockDao: StockDao) : RepositoryLocal {
     override suspend fun getCache(): CacheStock = withContext(Dispatchers.IO) {

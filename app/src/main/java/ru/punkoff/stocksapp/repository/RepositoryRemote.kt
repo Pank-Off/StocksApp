@@ -2,10 +2,12 @@ package ru.punkoff.stocksapp.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.ui.stocks.PaginationViewStateResult
-import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.PaginationViewStateResult
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 
 interface RepositoryRemote {
+
+    suspend fun getNewsData(ticker: String): StocksViewState
 
     suspend fun getCandlesData(ticker: String): StocksViewState
 

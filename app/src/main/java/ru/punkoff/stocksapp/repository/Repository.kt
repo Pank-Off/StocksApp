@@ -3,12 +3,14 @@ package ru.punkoff.stocksapp.repository
 import kotlinx.coroutines.flow.Flow
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.ui.stocks.PaginationViewStateResult
-import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.PaginationViewStateResult
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 
 interface Repository {
 
     fun setCache(stocks: List<Stock>)
+
+    suspend fun getNews(ticker: String): StocksViewState
 
     suspend fun getCandles(ticker: String): StocksViewState
 

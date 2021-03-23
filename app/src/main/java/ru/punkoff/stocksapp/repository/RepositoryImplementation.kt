@@ -2,7 +2,7 @@ package ru.punkoff.stocksapp.repository
 
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -17,6 +17,15 @@ class RepositoryImplementation(
     override fun setCache(stocks: List<Stock>) {
         repositoryRemote.setCache(stocks)
     }
+
+    override suspend fun getNews(ticker: String): StocksViewState =
+        try {
+            repositoryRemote.getNewsData(ticker)
+        } catch (exc: UnknownHostException) {
+            StocksViewState.Error(exc)
+        } catch (exc: SocketTimeoutException) {
+            StocksViewState.Error(exc)
+        }
 
     override suspend fun getCandles(ticker: String): StocksViewState =
         try {
