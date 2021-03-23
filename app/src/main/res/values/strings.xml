@@ -12,4 +12,5 @@
     <string name="there_is_no_data_to_display_the_graph">There is no data to display the graph 😨</string>
     <string name="price">Price</string>
     <string name="time">Time</string>
+    <string name="successful_purchase">Successful purchase</string>
 </resources>

@@ -127,9 +127,18 @@ class DetailActivity : AppCompatActivity() {
             price.text = currentPriceBuilder
             changeStock.text = changeStockBuilder
             buyBtn.text = btnTextBuilder
-
             graph.titleTextSize = resources.getDimension(R.dimen.graphTitle)
             graph.titleColor = ContextCompat.getColor(this@DetailActivity, R.color.black)
+            homeBtn.setOnClickListener {
+                finish()
+            }
+            buyBtn.setOnClickListener {
+                Toast.makeText(
+                    this@DetailActivity,
+                    getString(R.string.successful_purchase),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 }
