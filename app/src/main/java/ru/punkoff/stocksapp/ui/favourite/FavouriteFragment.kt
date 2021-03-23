@@ -66,7 +66,7 @@ class FavouriteFragment : Fragment() {
             listStocks.layoutManager = LinearLayoutManager(context)
             favouriteViewModel.observeViewState().observe(viewLifecycleOwner) {
                 when (it) {
-                    is StocksViewState.Value -> {
+                    is StocksViewState.StockValue -> {
                         adapter.setData(it.stocks)
                         adapter.filter.filter(searchView.text)
                         loadingBar.visibility = View.INVISIBLE
