@@ -1,5 +1,6 @@
 package ru.punkoff.stocksapp.ui.detail
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -116,8 +117,7 @@ class DetailActivity : AppCompatActivity() {
         detailViewModel.getCandles(stock.ticker)
         val currentPriceBuilder = StringBuilder("$")
         currentPriceBuilder.append(stock.price)
-        val changeStockBuilder = StringBuilder("$")
-        changeStockBuilder.append(stock.difPrice)
+        val changeStockBuilder = StringBuilder(stock.difPrice.toString())
         changeStockBuilder.append(" (${stock.stock}%)")
         val btnTextBuilder = java.lang.StringBuilder("Buy for ")
         btnTextBuilder.append(currentPriceBuilder)
@@ -125,6 +125,9 @@ class DetailActivity : AppCompatActivity() {
             ticker.text = stock.ticker
             name.text = stock.name
             price.text = currentPriceBuilder
+            if (stock.difPrice < 0) {
+                changeStock.setTextColor(Color.RED)
+            }
             changeStock.text = changeStockBuilder
             buyBtn.text = btnTextBuilder
             graph.titleTextSize = resources.getDimension(R.dimen.graphTitle)
