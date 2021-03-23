@@ -49,6 +49,14 @@ interface StockApi {
         @Query("token") token: String = KEY
     ): Deferred<Candle>
 
+    @GET("company-news?")
+    fun getNews(
+        @Query("symbol") symbol: String,
+        @Query("from") from: String = Constant.NEWS_FROM,
+        @Query("to") to: String = Constant.NEWS_TO,
+        @Query("token") token: String = KEY
+    ): Deferred<List<News>>
+
     companion object {
         private const val KEY = "c10fsj748v6oijd8e5gg"
     }

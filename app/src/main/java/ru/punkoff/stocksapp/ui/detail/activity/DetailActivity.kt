@@ -14,7 +14,6 @@ import ru.punkoff.stocksapp.utils.Constant
 class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
-    private val detailViewModel by viewModel<DetailViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

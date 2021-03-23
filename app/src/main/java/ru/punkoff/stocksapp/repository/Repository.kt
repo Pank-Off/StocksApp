@@ -10,6 +10,8 @@ interface Repository {
 
     fun setCache(stocks: List<Stock>)
 
+    suspend fun getNews(ticker: String): StocksViewState
+
     suspend fun getCandles(ticker: String): StocksViewState
 
     suspend fun requestMore(query: String)

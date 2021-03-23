@@ -20,26 +20,28 @@ class DetailPagerAdapter(fragmentActivity: FragmentActivity) :
     }
 
     override fun createFragment(position: Int): Fragment {
+        val bundle = Bundle()
+        bundle.putSerializable(Constant.EXTRA_STOCK, intent)
         return when (FragmentTypeEnum.values()[getItemViewType(position)]) {
             FragmentTypeEnum.CHART -> {
                 val chartFragment = ChartFragment()
-                val bundle = Bundle()
-                bundle.putSerializable(Constant.EXTRA_STOCK, intent)
                 chartFragment.arguments = bundle
                 chartFragment
             }
-            FragmentTypeEnum.NEWS -> NewsFragment()
+            FragmentTypeEnum.NEWS -> {
+                val newsFragment = NewsFragment()
+                newsFragment.arguments = bundle
+                newsFragment
+            }
             else -> CatsFragment()
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == 0) {
-            FragmentTypeEnum.CHART.ordinal
-        } else if (position == 1) {
-            FragmentTypeEnum.NEWS.ordinal
-        } else {
-            FragmentTypeEnum.CATS.ordinal
+        return when (position) {
+            0 -> FragmentTypeEnum.CHART.ordinal
+            1 -> FragmentTypeEnum.NEWS.ordinal
+            else -> FragmentTypeEnum.CATS.ordinal
         }
     }
 

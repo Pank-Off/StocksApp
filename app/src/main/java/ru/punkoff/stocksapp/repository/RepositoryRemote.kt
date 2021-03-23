@@ -7,6 +7,8 @@ import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 
 interface RepositoryRemote {
 
+    suspend fun getNewsData(ticker: String): StocksViewState
+
     suspend fun getCandlesData(ticker: String): StocksViewState
 
     suspend fun requestMore(query: String)

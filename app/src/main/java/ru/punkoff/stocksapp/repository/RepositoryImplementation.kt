@@ -18,6 +18,15 @@ class RepositoryImplementation(
         repositoryRemote.setCache(stocks)
     }
 
+    override suspend fun getNews(ticker: String): StocksViewState =
+        try {
+            repositoryRemote.getNewsData(ticker)
+        } catch (exc: UnknownHostException) {
+            StocksViewState.Error(exc)
+        } catch (exc: SocketTimeoutException) {
+            StocksViewState.Error(exc)
+        }
+
     override suspend fun getCandles(ticker: String): StocksViewState =
         try {
             repositoryRemote.getCandlesData(ticker)

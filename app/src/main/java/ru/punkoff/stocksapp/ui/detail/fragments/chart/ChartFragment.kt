@@ -67,10 +67,8 @@ class ChartFragment : Fragment() {
                         loadingBar.visibility = View.INVISIBLE
                         retryBtn.visibility = View.VISIBLE
                     }
-
                 }
                 StocksViewState.Loading -> {
-
                     with(binding) {
                         loadingBar.visibility = View.VISIBLE
                         retryBtn.visibility = View.INVISIBLE
