@@ -13,4 +13,7 @@
     <string name="price">Price</string>
     <string name="time">Time</string>
     <string name="successful_purchase">Successful purchase</string>
+    <string name="chart">Chart</string>
+    <string name="news">News</string>
+    <string name="cats">Cats</string>
 </resources>

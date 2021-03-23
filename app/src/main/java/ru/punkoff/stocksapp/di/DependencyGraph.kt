@@ -14,6 +14,7 @@ import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.model.retrofit.StockApi
 import ru.punkoff.stocksapp.model.room.AppDatabase
 import ru.punkoff.stocksapp.repository.*
+import ru.punkoff.stocksapp.ui.detail.ChartViewModel
 import ru.punkoff.stocksapp.ui.detail.DetailViewModel
 import ru.punkoff.stocksapp.ui.favourite.FavouriteViewModel
 import ru.punkoff.stocksapp.ui.main.ActivityViewModel
@@ -86,6 +87,10 @@ object DependencyGraph {
 
             viewModel {
                 DetailViewModel(get())
+            }
+
+            viewModel {
+                ChartViewModel(get())
             }
         }
     }

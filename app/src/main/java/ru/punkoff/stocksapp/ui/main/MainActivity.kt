@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         initSharedPreferences()
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        val pagerAdapter = MyPagerAdapter(this)
+        val pagerAdapter = MainPagerAdapter(this)
         setAdapter()
         with(binding) {
             swipeRefreshLayout.setOnRefreshListener {

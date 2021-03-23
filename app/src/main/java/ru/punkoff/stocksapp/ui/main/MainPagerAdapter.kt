@@ -6,12 +6,14 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import ru.punkoff.stocksapp.ui.favourite.FavouriteFragment
 import ru.punkoff.stocksapp.ui.stocks.StocksFragment
 
-class MyPagerAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
+class MainPagerAdapter(fragmentActivity: FragmentActivity) :
+    FragmentStateAdapter(fragmentActivity) {
 
     override fun createFragment(position: Int): Fragment {
         return when (FragmentTypeEnum.values()[getItemViewType(position)]) {
             FragmentTypeEnum.STOCKS -> StocksFragment()
             FragmentTypeEnum.FAVOURITE -> FavouriteFragment()
+            else -> Fragment()
         }
     }
 
