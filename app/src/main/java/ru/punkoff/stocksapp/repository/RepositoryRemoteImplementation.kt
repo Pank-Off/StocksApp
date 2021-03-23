@@ -5,10 +5,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import retrofit2.HttpException
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.model.retrofit.StockApi
-import ru.punkoff.stocksapp.model.retrofit.StockSymbol
-import ru.punkoff.stocksapp.ui.stocks.PaginationViewStateResult
-import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import ru.punkoff.stocksapp.retrofit.StockApi
+import ru.punkoff.stocksapp.model.StockSymbol
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.PaginationViewStateResult
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
 import java.io.IOException
 import kotlin.math.floor

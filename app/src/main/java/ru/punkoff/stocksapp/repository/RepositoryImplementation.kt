@@ -2,7 +2,7 @@ package ru.punkoff.stocksapp.repository
 
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.ui.stocks.StocksViewState
+import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
