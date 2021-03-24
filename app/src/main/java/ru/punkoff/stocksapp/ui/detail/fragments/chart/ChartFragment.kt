@@ -14,8 +14,8 @@ import com.jjoe64.graphview.series.LineGraphSeries
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ChartFragmentBinding
-import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.model.Candle
+import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
 import java.text.SimpleDateFormat
@@ -37,6 +37,13 @@ class ChartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
+        if (savedInstanceState == null) {
+            val currentTime = System.currentTimeMillis() / 1000
+            chartViewModel.getCandles(
+                symbol =
+                stock.ticker, from = currentTime - 3600, to = currentTime
+            )
+        }
         setInitialData(stock)
         chartViewModel.observeViewState().observe(viewLifecycleOwner) { result ->
             when (result) {
@@ -79,9 +86,13 @@ class ChartFragment : Fragment() {
         }
         with(binding) {
             retryBtn.setOnClickListener {
+                val currentTime = System.currentTimeMillis() / 1000
+                chartViewModel.getCandles(
+                    symbol =
+                    stock.ticker, from = currentTime - 3600, to = currentTime
+                )
                 retryBtn.visibility = View.GONE
                 loadingBar.visibility = View.VISIBLE
-                chartViewModel.getCandles(stock.ticker)
             }
         }
     }
@@ -98,10 +109,11 @@ class ChartFragment : Fragment() {
             listOfCandles.toTypedArray()
         )
         val dayFormat = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
-        val graphTitleBuilder = StringBuilder("Stock candles for ")
+        val graphTitleBuilder = StringBuilder(getString(R.string.stock_candles_for))
         graphTitleBuilder.append(dayFormat.format(listOfCandles[0].x))
         with(binding) {
             graph.title = graphTitleBuilder.toString()
+            series.color = ContextCompat.getColor(requireContext(), R.color.black)
             graph.addSeries(series)
             graph.gridLabelRenderer.numHorizontalLabels = 5
             graph.gridLabelRenderer.setHumanRounding(false, true)
@@ -119,7 +131,6 @@ class ChartFragment : Fragment() {
     }
 
     private fun setInitialData(stock: Stock) {
-        chartViewModel.getCandles(stock.ticker)
         val currentPriceBuilder = StringBuilder("$")
         currentPriceBuilder.append(stock.price)
         val changeStockBuilder = StringBuilder(stock.difPrice.toString())
@@ -143,5 +154,10 @@ class ChartFragment : Fragment() {
                 ).show()
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

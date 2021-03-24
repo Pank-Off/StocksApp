@@ -11,11 +11,11 @@ class ChartViewModel(private val repository: Repository) : BaseViewModel() {
 
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
-    fun getCandles(symbol: String) {
+    fun getCandles(symbol: String, from: Long, to: Long) {
         cancelJob()
         stocksLiveData.value = StocksViewState.Loading
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stocksLiveData.postValue(repository.getCandles(symbol))
+            stocksLiveData.postValue(repository.getCandles(symbol, from, to))
         }
     }
 

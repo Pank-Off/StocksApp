@@ -17,6 +17,7 @@ import ru.punkoff.stocksapp.repository.*
 import ru.punkoff.stocksapp.ui.detail.fragments.chart.ChartViewModel
 import ru.punkoff.stocksapp.ui.detail.activity.DetailViewModel
 import ru.punkoff.stocksapp.ui.detail.fragments.cats.CatsViewModel
+import ru.punkoff.stocksapp.ui.detail.fragments.summary.SummaryViewModel
 import ru.punkoff.stocksapp.ui.detail.fragments.news.NewsViewModel
 import ru.punkoff.stocksapp.ui.main.fragments.favourite.FavouriteViewModel
 import ru.punkoff.stocksapp.ui.main.activity.ActivityViewModel
@@ -100,6 +101,9 @@ object DependencyGraph {
             }
             viewModel {
                 CatsViewModel(get())
+            }
+            viewModel {
+                SummaryViewModel(get())
             }
         }
     }

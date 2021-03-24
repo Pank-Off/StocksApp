@@ -27,4 +27,5 @@
     <dimen name="btnCornerRadius">20dp</dimen>
     <dimen name="edit_text_hint_padding">13dp</dimen>
     <dimen name="graphTitle">20sp</dimen>
+    <dimen name="card_margin">16dp</dimen>
 </resources>

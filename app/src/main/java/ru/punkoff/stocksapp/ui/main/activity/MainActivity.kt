@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
             with(binding) {
                 viewpager.visibility = View.VISIBLE
-                popularSearchLayout.visibility = View.GONE
+                popularSearchLay.container.visibility = View.GONE
             }
         }
 
@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                         setEnabledView(false)
                         swipeRefreshLayout.isEnabled = false
                         loadingBar.visibility = View.VISIBLE
-                        popularSearchLayout.visibility = View.GONE
+                        popularSearchLay.container.visibility = View.GONE
                         mAboutDataListener.onDataLoading()
                     }
                     is StocksViewState.StockValue -> {
@@ -154,12 +154,12 @@ class MainActivity : AppCompatActivity() {
                     textFieldSearch.setStartIconDrawable(android.R.drawable.ic_menu_search)
                     tabLayout.visibility = View.VISIBLE
                     viewpager.visibility = View.VISIBLE
-                    popularSearchLayout.visibility = View.GONE
+                    popularSearchLay.container.visibility = View.GONE
                 } else {
                     textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
                     tabLayout.visibility = View.GONE
                     viewpager.visibility = View.GONE
-                    popularSearchLayout.visibility = View.VISIBLE
+                    popularSearchLay.container.visibility = View.VISIBLE
                 }
             }
 
@@ -206,11 +206,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
         with(binding) {
-            listPopularBtn.adapter = popularSearchAdapter
-            listPopularBtn.layoutManager =
+            popularSearchLay.listPopularBtn.adapter = popularSearchAdapter
+            popularSearchLay.listPopularBtn.layoutManager =
                 StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
-            listRecentBtn.adapter = recentSearchAdapter
-            listRecentBtn.layoutManager =
+            popularSearchLay.listRecentBtn.adapter = recentSearchAdapter
+            popularSearchLay.listRecentBtn.layoutManager =
                 StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.HORIZONTAL)
         }
     }

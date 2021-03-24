@@ -81,6 +81,13 @@ class NewsFragment : Fragment() {
                 is StocksViewState.StockValue -> Unit
             }
         }
+        with(binding) {
+            retryBtn.setOnClickListener {
+                newsViewModel.getNews(symbol = stock.ticker)
+                retryBtn.visibility = View.GONE
+                loadingBar.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun setAdapter() {

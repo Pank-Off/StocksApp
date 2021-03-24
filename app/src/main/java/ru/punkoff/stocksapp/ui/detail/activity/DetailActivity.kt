@@ -4,12 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayoutMediator
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.ActivityDetailBinding
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.utils.FragmentTypeEnum
 import ru.punkoff.stocksapp.utils.Constant
+import ru.punkoff.stocksapp.utils.FragmentTypeEnum
 
 class DetailActivity : AppCompatActivity() {
 
@@ -32,6 +31,7 @@ class DetailActivity : AppCompatActivity() {
             TabLayoutMediator(tabLayout, viewpager) { tab, position ->
                 when (FragmentTypeEnum.values()[pagerAdapter.getItemViewType(position)]) {
                     FragmentTypeEnum.CHART -> tab.text = getString(R.string.chart)
+                    FragmentTypeEnum.SUMMARY -> tab.text = getString(R.string.company_profile)
                     FragmentTypeEnum.NEWS -> tab.text = getString(R.string.news)
                     FragmentTypeEnum.CATS -> tab.text = getString(R.string.cats)
                 }
