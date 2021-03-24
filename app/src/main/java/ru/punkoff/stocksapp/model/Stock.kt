@@ -12,6 +12,7 @@ data class Stock(
     val difPrice: Double,
     val stock: Double,
     val logo: String,
+    val webUrl: String,
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     var isFavourite: Boolean = false

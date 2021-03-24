@@ -21,15 +21,26 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private suspend fun getStockByQuery(symbol: String) = api.getStockByQuery(symbol).await()
     private suspend fun getLogo(symbol: String) = api.getLogo(symbol).await()
     private suspend fun getPrice(symbol: String) = api.getPrice(symbol).await()
-    private suspend fun getCandles(symbol: String) = api.getCandles(symbol).await()
-    private suspend fun getNews(symbol: String) = api.getNews(symbol).await()
+    private suspend fun getCandles(symbol: String, from: Long, to: Long) =
+        api.getCandles(symbol = symbol, from = from, to = to).await()
 
+    private suspend fun getNews(symbol: String) = api.getNews(symbol).await()
+    private suspend fun getProfile(symbol: String) = api.getCompanyProfile(symbol = symbol).await()
     private val searchResults = MutableSharedFlow<PaginationViewStateResult>(replay = 1)
     private var isRequestInProgress = false
 
     private var lastRequestedPage = FINHUB_STARTING_PAGE_INDEX
     override fun setCache(stocks: List<Stock>) {
         this.stocks = stocks as MutableList<Stock>
+    }
+
+    override suspend fun getProfileData(ticker: String): StocksViewState {
+        var state: StocksViewState = StocksViewState.EMPTY
+        val profile = getProfile(ticker)
+        profile.description?.let {
+            state = StocksViewState.SummaryValue(profile)
+        }
+        return state
     }
 
     override suspend fun getNewsData(ticker: String): StocksViewState {
@@ -41,9 +52,9 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         return state
     }
 
-    override suspend fun getCandlesData(ticker: String): StocksViewState {
+    override suspend fun getCandlesData(ticker: String, from: Long, to: Long): StocksViewState {
         var state: StocksViewState = StocksViewState.EMPTY
-        val candle = getCandles(ticker)
+        val candle = getCandles(ticker, from, to)
         if (candle.exist != Constant.NO_DATA) {
             state = StocksViewState.CandleValue(candle)
         }
@@ -125,7 +136,8 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
                     floor(price.currentPrice * 100) / 100,
                     floor((price.currentPrice - price.previousPrice) * 100) / 100,
                     floor(percent * 100) / 100,
-                    it
+                    it,
+                    webUrl = logo.weburl,
                 )
             )
         }

@@ -1,8 +1,6 @@
 package ru.punkoff.stocksapp.ui.main.fragments.stocks
 
-import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.model.Candle
-import ru.punkoff.stocksapp.model.News
+import ru.punkoff.stocksapp.model.*
 
 sealed class StocksViewState {
     object Loading : StocksViewState()
@@ -11,4 +9,5 @@ sealed class StocksViewState {
     data class CandleValue(val candle: Candle) : StocksViewState()
     data class NewsValue(val news: List<News>) : StocksViewState()
     data class Error(val error: Exception) : StocksViewState()
+    data class SummaryValue(val summary: Summary) : StocksViewState()
 }

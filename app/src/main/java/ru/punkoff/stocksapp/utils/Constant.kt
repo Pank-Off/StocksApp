@@ -1,11 +1,10 @@
 package ru.punkoff.stocksapp.utils
 
 object Constant {
+    const val ALPHAVANTAGE_PROFILE_FUNCTION_PARAMETER = "OVERVIEW"
     const val NEWS_TO = "2021-03-09"
     const val NEWS_FROM = "2021-03-01"
     const val EXTRA_NEWS_URL = "EXTRA_NEWS_URL"
-    const val CANDLE_TO_TIME: Long = 1615302599
-    const val CANDLE_FROM_TIME: Long = 1615298999
     const val RESOLUTION = "1"
     const val NO_DATA = "no_data"
     const val EXTRA_STOCK = "EXTRA_STOCK"

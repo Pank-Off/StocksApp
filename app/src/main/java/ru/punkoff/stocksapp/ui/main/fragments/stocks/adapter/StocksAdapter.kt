@@ -103,7 +103,7 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(STOCK_C
             notifyItemChanged(currentPosition)
         }
 
-        private val favourite = binding.root.findViewById<ImageView>(R.id.favorite)
+        private val favorite = binding.root.findViewById<ImageView>(R.id.favorite)
         fun bind(currentItem: Stock, position: Int) {
             currentPosition = position
             currentStock = currentItem
@@ -119,11 +119,11 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(STOCK_C
                 price.text = currentPrice
                 stock.text = changeStock
                 if (currentItem.isFavourite) {
-                    favourite.background =
-                        ContextCompat.getDrawable(favourite.context, android.R.drawable.star_on)
+                    this@StocksViewHolder.favorite.background =
+                        ContextCompat.getDrawable(this@StocksViewHolder.favorite.context, android.R.drawable.star_on)
                 } else {
-                    favourite.background =
-                        ContextCompat.getDrawable(favourite.context, android.R.drawable.star_off)
+                    this@StocksViewHolder.favorite.background =
+                        ContextCompat.getDrawable(this@StocksViewHolder.favorite.context, android.R.drawable.star_off)
                 }
                 if (currentItem.stock < 0) {
                     stock.setTextColor(Color.RED)
@@ -144,7 +144,7 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(STOCK_C
         }
 
         init {
-            favourite.setOnClickListener(starClickListener)
+            favorite.setOnClickListener(starClickListener)
         }
 
     }

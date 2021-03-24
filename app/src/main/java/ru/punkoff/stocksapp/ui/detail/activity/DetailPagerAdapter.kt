@@ -7,6 +7,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.detail.fragments.cats.CatsFragment
 import ru.punkoff.stocksapp.ui.detail.fragments.chart.ChartFragment
+import ru.punkoff.stocksapp.ui.detail.fragments.summary.SummaryFragment
 import ru.punkoff.stocksapp.ui.detail.fragments.news.NewsFragment
 import ru.punkoff.stocksapp.utils.FragmentTypeEnum
 import ru.punkoff.stocksapp.utils.Constant
@@ -28,19 +29,30 @@ class DetailPagerAdapter(fragmentActivity: FragmentActivity) :
                 chartFragment.arguments = bundle
                 chartFragment
             }
+            FragmentTypeEnum.SUMMARY -> {
+                val summaryFragment = SummaryFragment()
+                summaryFragment.arguments = bundle
+                summaryFragment
+            }
             FragmentTypeEnum.NEWS -> {
                 val newsFragment = NewsFragment()
                 newsFragment.arguments = bundle
                 newsFragment
             }
-            else -> CatsFragment()
+
+            else -> {
+                val catsFragment = CatsFragment()
+                catsFragment.arguments = bundle
+                catsFragment
+            }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
         return when (position) {
             0 -> FragmentTypeEnum.CHART.ordinal
-            1 -> FragmentTypeEnum.NEWS.ordinal
+            1 -> FragmentTypeEnum.SUMMARY.ordinal
+            2 -> FragmentTypeEnum.NEWS.ordinal
             else -> FragmentTypeEnum.CATS.ordinal
         }
     }
@@ -48,6 +60,6 @@ class DetailPagerAdapter(fragmentActivity: FragmentActivity) :
     override fun getItemCount(): Int = CARD_ITEM_SIZE
 
     companion object {
-        private const val CARD_ITEM_SIZE = 3
+        private const val CARD_ITEM_SIZE = 4
     }
 }
