@@ -33,6 +33,7 @@ import java.net.UnknownHostException
 class MainActivity : AppCompatActivity() {
 
     private lateinit var mAboutDataListener: OnAboutDataReceivedListener
+
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel by viewModel<ActivityViewModel>()
     private val popularSearchAdapter = PopularSearchAdapter()
@@ -42,10 +43,16 @@ class MainActivity : AppCompatActivity() {
         override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
         }
 
-        override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             with(binding) {
                 viewpager.visibility = View.VISIBLE
                 popularSearchLay.container.visibility = View.GONE
+                if (s?.isEmpty() == true) {
+                    tabLayout.visibility = View.VISIBLE
+                    hideKeyboard(this@MainActivity)
+                    textFieldSearch.setStartIconDrawable(android.R.drawable.ic_menu_search)
+                    textFieldSearch.clearFocus()
+                }
             }
         }
 
@@ -53,11 +60,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(LayoutInflater.from(this))
         setContentView(binding.root)
+
         initSharedPreferences()
+
+        setOptionsForSearchView()
         supportActionBar?.setDisplayShowTitleEnabled(false)
         val pagerAdapter = MainPagerAdapter(this)
         setAdapter()
@@ -75,51 +86,56 @@ class MainActivity : AppCompatActivity() {
                     FragmentTypeEnum.FAVOURITE -> tab.text = getString(R.string.favourite)
                 }
             }.attach()
-
-            mainViewModel.observeViewState().observe(this@MainActivity) {
-                when (it) {
-                    StocksViewState.EMPTY -> Unit
-                    is StocksViewState.Loading -> {
-                        setEnabledView(false)
+        }
+        mainViewModel.observeViewState().observe(this@MainActivity) {
+            when (it) {
+                StocksViewState.EMPTY -> Unit
+                is StocksViewState.Loading -> {
+                    setEnabledView(false)
+                    with(binding) {
+                        tabLayout.visibility = View.GONE
                         swipeRefreshLayout.isEnabled = false
                         loadingBar.visibility = View.VISIBLE
                         popularSearchLay.container.visibility = View.GONE
-                        mAboutDataListener.onDataLoading()
                     }
-                    is StocksViewState.StockValue -> {
-                        setEnabledView(true)
+                    mAboutDataListener.onDataLoading()
+                }
+                is StocksViewState.StockValue -> {
+                    setEnabledView(true)
+                    with(binding) {
                         swipeRefreshLayout.isEnabled = true
                         swipeRefreshLayout.isRefreshing = false
                         loadingBar.visibility = View.GONE
                         viewpager.visibility = View.VISIBLE
-                        mAboutDataListener.onDataReceived(it.stocks)
                     }
-                    is StocksViewState.Error -> {
-                        when (it.error) {
-                            is UnknownHostException -> Toast.makeText(
-                                this@MainActivity,
-                                getString(R.string.check_internet),
-                                Toast.LENGTH_LONG
-                            ).show()
-                            is SocketTimeoutException -> Toast.makeText(
-                                this@MainActivity,
-                                getString(R.string.timeout),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                        setEnabledView(true)
+                    mAboutDataListener.onDataReceived(it.stocks)
+                }
+                is StocksViewState.Error -> {
+                    when (it.error) {
+                        is UnknownHostException -> Toast.makeText(
+                            this@MainActivity,
+                            getString(R.string.check_internet),
+                            Toast.LENGTH_LONG
+                        ).show()
+                        is SocketTimeoutException -> Toast.makeText(
+                            this@MainActivity,
+                            getString(R.string.timeout),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    setEnabledView(true)
+                    with(binding) {
                         swipeRefreshLayout.isEnabled = true
                         swipeRefreshLayout.isRefreshing = false
                         loadingBar.visibility = View.GONE
                         viewpager.visibility = View.VISIBLE
-                        mAboutDataListener.onDataReceived(emptyList())
                     }
+                    mAboutDataListener.onDataReceived(emptyList())
                 }
             }
         }
-
-        setOptionsForSearchView()
     }
+
 
     private fun initSharedPreferences() {
         mSettings = getSharedPreferences(Constant.APP_PREFERENCES, Context.MODE_PRIVATE)
@@ -134,8 +150,10 @@ class MainActivity : AppCompatActivity() {
     private fun setEnabledView(isEnabled: Boolean) {
         with(binding) {
             textFieldSearch.isEnabled = isEnabled
+            textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
             viewpager.isUserInputEnabled = isEnabled
             val tabStrip = tabLayout.getChildAt(0) as LinearLayout
+
             for (i in 0 until tabStrip.childCount) {
                 tabStrip.getChildAt(i).setOnTouchListener { view, _ ->
                     if (false) {
@@ -149,20 +167,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun setOptionsForSearchView() {
         with(binding) {
-            textFieldSearch.setOnFocusChangeListener { v, hasFocus ->
-                if (hasFocus) {
+            textInputSearch.setOnFocusChangeListener { v, hasFocus ->
+                if (!hasFocus) {
                     textFieldSearch.setStartIconDrawable(android.R.drawable.ic_menu_search)
                     tabLayout.visibility = View.VISIBLE
                     viewpager.visibility = View.VISIBLE
                     popularSearchLay.container.visibility = View.GONE
+                    swipeRefreshLayout.isEnabled = true
                 } else {
                     textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
                     tabLayout.visibility = View.GONE
                     viewpager.visibility = View.GONE
                     popularSearchLay.container.visibility = View.VISIBLE
+                    swipeRefreshLayout.isEnabled = false
                 }
             }
-
             textInputSearch.onLeftDrawableClicked {
                 hideKeyboard(this@MainActivity)
                 textInputSearch.clearFocus()
@@ -192,16 +211,20 @@ class MainActivity : AppCompatActivity() {
     private fun setAdapter() {
         popularSearchAdapter.attachListener(object : OnButtonClickListener {
             override fun onClick(name: String) {
-                binding.textInputSearch.setText(name)
-                binding.viewpager.currentItem = FragmentTypeEnum.STOCKS.ordinal
+                with(binding) {
+                    textInputSearch.setText(name)
+                    viewpager.currentItem = FragmentTypeEnum.STOCKS.ordinal
+                }
                 recentSearchAdapter.setData(name)
                 mainViewModel.getRequestBySymbol(name)
             }
         })
         recentSearchAdapter.attachListener(object : OnButtonClickListener {
             override fun onClick(name: String) {
-                binding.textInputSearch.setText(name)
-                binding.viewpager.currentItem = FragmentTypeEnum.STOCKS.ordinal
+                with(binding) {
+                    textInputSearch.setText(name)
+                    viewpager.currentItem = FragmentTypeEnum.STOCKS.ordinal
+                }
                 mainViewModel.getRequestBySymbol(name)
             }
         })

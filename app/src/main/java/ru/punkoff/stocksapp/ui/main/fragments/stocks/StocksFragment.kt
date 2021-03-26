@@ -37,7 +37,12 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
         override fun beforeTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
         }
 
-        override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if (s?.isEmpty() == true) {
+                binding.paginationLoadingBar.visibility = View.VISIBLE
+            } else {
+                binding.paginationLoadingBar.visibility = View.GONE
+            }
             adapter.filter.filter(s)
         }
 
@@ -132,16 +137,12 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
     }
 
     private fun setSearchViewOptions() {
-        searchView = requireActivity().findViewById(R.id.textInputSearch)
-        searchView.addTextChangedListener(searchViewTextWatcher)
-
-        searchView.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) {
-                binding.paginationLoadingBar.visibility = View.GONE
-            } else {
-                binding.paginationLoadingBar.visibility = View.VISIBLE
-            }
+        searchView = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            requireActivity().requireViewById<TextInputEditText>(R.id.textInputSearch)
+        } else {
+            requireActivity().findViewById(R.id.textInputSearch)
         }
+        searchView.addTextChangedListener(searchViewTextWatcher)
     }
 
     private fun attachListenerToAdapter() {
