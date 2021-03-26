@@ -41,7 +41,7 @@
         android:gravity="center"
         android:text="@string/i_have_no_news_for_this_company"
         android:textColor="@color/black"
-        android:textSize="32sp"
+        android:textSize="@dimen/no_data_text_size"
         android:textStyle="bold"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"

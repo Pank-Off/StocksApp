@@ -9,7 +9,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
         android:minHeight="?attr/actionBarSize">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -21,8 +20,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginTop="@dimen/margin_top_detail_title"
+            android:layout_marginBottom="@dimen/margin_bottom_detail_title"
             android:orientation="vertical"
             app:layout_scrollFlags="scroll|enterAlways">
 
@@ -30,7 +29,7 @@
                 android:id="@+id/home_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="18dp"
+                android:layout_marginStart="@dimen/margin_start_back_btn"
                 android:src="@drawable/ic_arrow_arrows_back"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -42,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textColor="@color/black"
-                android:textSize="24sp"
+                android:textSize="@dimen/textSize_detail_ticker"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -55,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textColor="@color/black"
-                android:textSize="16sp"
+                android:textSize="@dimen/textSize_detail_name"
                 app:layout_constraintEnd_toEndOf="@+id/ticker"
                 app:layout_constraintStart_toStartOf="@+id/ticker"
                 app:layout_constraintTop_toBottomOf="@+id/ticker"
