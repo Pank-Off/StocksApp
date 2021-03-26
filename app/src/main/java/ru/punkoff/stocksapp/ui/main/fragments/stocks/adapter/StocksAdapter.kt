@@ -153,7 +153,7 @@ class StocksAdapter : ListAdapter<Stock, StocksAdapter.StocksViewHolder>(STOCK_C
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence): FilterResults {
                 val charString: String = constraint.toString()
-                Log.d(javaClass.simpleName + " charString", charString)
+                Log.d(javaClass.simpleName, "charString $charString")
                 stockListFiltered = if (charString.isEmpty()) {
                     stockList
                 } else {
