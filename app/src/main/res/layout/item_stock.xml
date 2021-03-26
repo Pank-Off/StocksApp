@@ -49,6 +49,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/name_marginStart"
+            android:layout_marginTop="12dp"
+            android:paddingEnd="175dp"
             android:textColor="@color/black"
             android:textSize="@dimen/name_textSize"
             app:layout_constraintBottom_toBottomOf="@+id/logo"
