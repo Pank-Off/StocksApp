@@ -24,7 +24,9 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private suspend fun getCandles(symbol: String, from: Long, to: Long) =
         api.getCandles(symbol = symbol, from = from, to = to).await()
 
-    private suspend fun getNews(symbol: String) = api.getNews(symbol).await()
+    private suspend fun getNews(symbol: String, from: String, to: String) =
+        api.getNews(symbol = symbol, from = from, to = to).await()
+
     private suspend fun getProfile(symbol: String) = api.getCompanyProfile(symbol = symbol).await()
     private val searchResults = MutableSharedFlow<PaginationViewStateResult>(replay = 1)
     private var isRequestInProgress = false
@@ -43,9 +45,9 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         return state
     }
 
-    override suspend fun getNewsData(ticker: String): StocksViewState {
+    override suspend fun getNewsData(ticker: String, from: String, to: String): StocksViewState {
         var state: StocksViewState = StocksViewState.EMPTY
-        val news = getNews(ticker)
+        val news = getNews(ticker, from, to)
         if (news.isNotEmpty()) {
             state = StocksViewState.NewsValue(news)
         }

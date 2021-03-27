@@ -10,8 +10,7 @@ object PicassoLoader {
     fun loadImage(url: String, imageView: ImageView) {
         try {
             Picasso.get().isLoggingEnabled = true
-            Picasso.get().load(url).error(R.drawable.no_image_icon).into(imageView)
-            Log.d(javaClass.toString(), "IllegalExceptionURL $url")
+            Picasso.get().load(url).fit().error(R.drawable.no_image_icon).into(imageView)
         } catch (exc: IllegalArgumentException) {
             Log.e(javaClass.toString(), "IllegalExceptionURL $url")
             Picasso.get().load(R.drawable.no_image_icon).into(imageView)

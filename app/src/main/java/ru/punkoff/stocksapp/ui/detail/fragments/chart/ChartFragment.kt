@@ -41,7 +41,7 @@ class ChartFragment : Fragment() {
             val currentTime = System.currentTimeMillis() / 1000
             chartViewModel.getCandles(
                 symbol =
-                stock.ticker, from = currentTime - 3600, to = currentTime
+                stock.ticker, from = currentTime - Constant.UNIX_DAY_TIME, to = currentTime
             )
         }
         setInitialData(stock)
@@ -89,7 +89,7 @@ class ChartFragment : Fragment() {
                 val currentTime = System.currentTimeMillis() / 1000
                 chartViewModel.getCandles(
                     symbol =
-                    stock.ticker, from = currentTime - 3600, to = currentTime
+                    stock.ticker, from = currentTime - Constant.UNIX_DAY_TIME, to = currentTime
                 )
                 retryBtn.visibility = View.GONE
                 loadingBar.visibility = View.VISIBLE

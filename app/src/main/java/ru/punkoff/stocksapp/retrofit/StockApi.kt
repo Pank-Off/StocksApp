@@ -53,8 +53,8 @@ interface StockApi {
     @GET("company-news?")
     fun getNews(
         @Query("symbol") symbol: String,
-        @Query("from") from: String = Constant.NEWS_FROM,
-        @Query("to") to: String = Constant.NEWS_TO,
+        @Query("from") from: String = Constant.NEWS_FROM_DEFAULT,
+        @Query("to") to: String = Constant.NEWS_TO_DEFAULT,
         @Query("token") token: String = FINHUB_API
     ): Deferred<List<News>>
 
@@ -66,7 +66,7 @@ interface StockApi {
     ): Deferred<Summary>
 
     companion object {
-        private const val FINHUB_API = "c10fsj748v6oijd8e5gg"
+        private const val FINHUB_API = "c1fjmln48v6r34ehd6hg"
         private const val ALPHAVANTAGE_API = "Y8ZBME7X49660B2Y"
     }
 }

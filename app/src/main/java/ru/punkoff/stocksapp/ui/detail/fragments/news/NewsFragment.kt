@@ -21,6 +21,8 @@ import ru.punkoff.stocksapp.ui.detail.fragments.news.adapter.NewsAdapter
 import ru.punkoff.stocksapp.ui.detail.fragments.news.adapter.OnNewsClickListener
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NewsFragment : Fragment() {
     private var _binding: NewsFragmentBinding? = null
@@ -40,7 +42,11 @@ class NewsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
         if (savedInstanceState == null) {
-            newsViewModel.getNews(stock.ticker)
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+            val currentTime = System.currentTimeMillis()
+            val currentDate = simpleDateFormat.format(currentTime)
+            val monthAgoDate = simpleDateFormat.format(currentTime - Constant.UNIX_MONTH_TIME)
+            newsViewModel.getNews(stock.ticker, from = monthAgoDate, to = currentDate)
         }
         setAdapter()
         newsViewModel.observeViewState().observe(viewLifecycleOwner) { result ->
@@ -83,7 +89,11 @@ class NewsFragment : Fragment() {
         }
         with(binding) {
             retryBtn.setOnClickListener {
-                newsViewModel.getNews(symbol = stock.ticker)
+                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+                val currentTime = System.currentTimeMillis()
+                val currentDate = simpleDateFormat.format(currentTime)
+                val monthAgoDate = simpleDateFormat.format(currentTime - Constant.UNIX_MONTH_TIME)
+                newsViewModel.getNews(symbol = stock.ticker, monthAgoDate, currentDate)
                 retryBtn.visibility = View.GONE
                 loadingBar.visibility = View.VISIBLE
             }
