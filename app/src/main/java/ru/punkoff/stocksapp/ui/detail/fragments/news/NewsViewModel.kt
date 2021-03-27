@@ -11,11 +11,11 @@ class NewsViewModel(private val repository: Repository) : BaseViewModel() {
 
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
-    fun getNews(symbol: String) {
+    fun getNews(symbol: String, from: String, to: String) {
         cancelJob()
         stocksLiveData.value = StocksViewState.Loading
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stocksLiveData.postValue(repository.getNews(symbol))
+            stocksLiveData.postValue(repository.getNews(symbol, from, to))
         }
     }
 

@@ -12,7 +12,7 @@ interface Repository {
 
     suspend fun getProfile(ticker: String): StocksViewState
 
-    suspend fun getNews(ticker: String): StocksViewState
+    suspend fun getNews(ticker: String, from: String, to: String): StocksViewState
 
     suspend fun getCandles(ticker: String, from: Long, to: Long): StocksViewState
 

@@ -27,9 +27,9 @@ class RepositoryImplementation(
             StocksViewState.Error(exc)
         }
 
-    override suspend fun getNews(ticker: String): StocksViewState =
+    override suspend fun getNews(ticker: String, from: String, to: String): StocksViewState =
         try {
-            repositoryRemote.getNewsData(ticker)
+            repositoryRemote.getNewsData(ticker, from, to)
         } catch (exc: UnknownHostException) {
             StocksViewState.Error(exc)
         } catch (exc: SocketTimeoutException) {
