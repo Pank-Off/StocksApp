@@ -62,4 +62,5 @@
     <dimen name="description_summary_padding">20dp</dimen>
     <dimen name="description_textSize">16sp</dimen>
     <dimen name="url_margin">12dp</dimen>
+    <dimen name="news_image_height">200dp</dimen>
 </resources>
