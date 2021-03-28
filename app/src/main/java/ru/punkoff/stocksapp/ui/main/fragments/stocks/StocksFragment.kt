@@ -113,6 +113,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
     }
 
     private fun initAdapter() {
+        binding.listStocks.setHasFixedSize(true)
         binding.listStocks.adapter = adapter
         stocksViewModel.stocksPaginationLiveData.observe(viewLifecycleOwner) { result ->
             when (result) {
