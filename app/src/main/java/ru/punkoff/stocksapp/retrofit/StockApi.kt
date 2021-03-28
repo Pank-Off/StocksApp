@@ -64,8 +64,15 @@ interface StockApi {
         @Query("apikey") apikey: String = ALPHAVANTAGE_API,
     ): Deferred<Summary>
 
+
+    @GET("https://api.thecatapi.com/v1/images/search?")
+    fun getCat(
+        @Query("api_key") apikey: String = CATS_API
+    ): Deferred<List<Cat>>
+
     companion object {
         private const val FINHUB_API = "c1fjmln48v6r34ehd6hg"
         private const val ALPHAVANTAGE_API = "Y8ZBME7X49660B2Y"
+        private const val CATS_API = "808575de-38d0-408a-9d94-90e100700181"
     }
 }

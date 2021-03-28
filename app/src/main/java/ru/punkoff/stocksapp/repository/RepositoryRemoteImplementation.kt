@@ -7,6 +7,7 @@ import retrofit2.HttpException
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.retrofit.StockApi
 import ru.punkoff.stocksapp.model.StockSymbol
+import ru.punkoff.stocksapp.ui.detail.fragments.cats.CatsViewState
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.PaginationViewStateResult
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
@@ -165,6 +166,13 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         if (stocks.isNotEmpty()) {
             state = StocksViewState.StockValue(stocks)
         }
+        return state
+    }
+
+    override suspend fun getCat(): CatsViewState {
+        val state: CatsViewState
+        val cat = api.getCat().await()
+        state = CatsViewState.CatValue(cat)
         return state
     }
 

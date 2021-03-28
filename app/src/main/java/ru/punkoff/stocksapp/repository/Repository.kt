@@ -3,6 +3,7 @@ package ru.punkoff.stocksapp.repository
 import kotlinx.coroutines.flow.Flow
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
+import ru.punkoff.stocksapp.ui.detail.fragments.cats.CatsViewState
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.PaginationViewStateResult
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 
@@ -34,4 +35,6 @@ interface Repository {
     suspend fun getCache(): CacheStock
 
     suspend fun saveCache(stock: CacheStock)
+
+    suspend fun getCat(): CatsViewState
 }
