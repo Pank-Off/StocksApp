@@ -81,4 +81,7 @@ class RepositoryImplementation(
     override suspend fun saveCache(stock: CacheStock) {
         repositoryLocal.saveCache(stock)
     }
+
+    override suspend fun getCat() =
+        repositoryRemote.getCat()
 }
