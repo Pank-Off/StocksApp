@@ -246,6 +246,16 @@ class MainActivity : AppCompatActivity() {
         mAboutDataListener.onDataChange(stock)
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        mainViewModel.observeViewState().observe(this) {
+            when (it) {
+                is StocksViewState.Loading -> binding.popularSearchLay.container.visibility =
+                    View.GONE
+            }
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         mSettings.edit().apply {

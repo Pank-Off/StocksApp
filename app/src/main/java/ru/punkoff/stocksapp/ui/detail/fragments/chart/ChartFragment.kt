@@ -18,6 +18,7 @@ import ru.punkoff.stocksapp.model.Candle
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
+import ru.punkoff.stocksapp.utils.Period
 import ru.punkoff.stocksapp.utils.activateButton
 import java.util.*
 
@@ -26,6 +27,7 @@ class ChartFragment : Fragment() {
     private var _binding: ChartFragmentBinding? = null
     private val binding: ChartFragmentBinding get() = _binding!!
 
+    private lateinit var saveStatePeriod: Period
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +46,7 @@ class ChartFragment : Fragment() {
                 weekBtn.backgroundTintList =
                     ContextCompat.getColorStateList(weekBtn.context, R.color.black)
                 weekBtn.setTextColor(Color.WHITE)
+                saveStatePeriod = Period.WEEK
             }
             val currentTime = System.currentTimeMillis()
             chartViewModel.getCandles(
@@ -53,6 +56,35 @@ class ChartFragment : Fragment() {
                 to = currentTime / 1000,
                 resolution = Constant.RESOLUTION_W
             )
+        } else {
+            with(binding) {
+                when (savedInstanceState.get(EXTRA_PERIOD)) {
+                    Period.DAY -> {
+                        dayBtn.backgroundTintList =
+                            ContextCompat.getColorStateList(dayBtn.context, R.color.black)
+                        dayBtn.setTextColor(Color.WHITE)
+                        saveStatePeriod = Period.DAY
+                    }
+                    Period.WEEK -> {
+                        weekBtn.backgroundTintList =
+                            ContextCompat.getColorStateList(weekBtn.context, R.color.black)
+                        weekBtn.setTextColor(Color.WHITE)
+                        saveStatePeriod = Period.WEEK
+                    }
+                    Period.MONTH -> {
+                        monthBtn.backgroundTintList =
+                            ContextCompat.getColorStateList(monthBtn.context, R.color.black)
+                        monthBtn.setTextColor(Color.WHITE)
+                        saveStatePeriod = Period.MONTH
+                    }
+                    Period.YEAR -> {
+                        yearBtn.backgroundTintList =
+                            ContextCompat.getColorStateList(yearBtn.context, R.color.black)
+                        yearBtn.setTextColor(Color.WHITE)
+                        saveStatePeriod = Period.YEAR
+                    }
+                }
+            }
         }
 
         setListenerOnBtns(stock.ticker)
@@ -124,6 +156,7 @@ class ChartFragment : Fragment() {
                     resolution = Constant.RESOLUTION_D
                 )
                 dayBtn.activateButton(binding)
+                saveStatePeriod = Period.DAY
             }
 
             weekBtn.setOnClickListener {
@@ -137,6 +170,7 @@ class ChartFragment : Fragment() {
                     resolution = Constant.RESOLUTION_W
                 )
                 weekBtn.activateButton(binding)
+                saveStatePeriod = Period.WEEK
             }
 
             monthBtn.setOnClickListener {
@@ -150,6 +184,7 @@ class ChartFragment : Fragment() {
                     resolution = Constant.RESOLUTION_M
                 )
                 monthBtn.activateButton(binding)
+                saveStatePeriod = Period.MONTH
             }
             yearBtn.setOnClickListener {
                 graph.gridLabelRenderer.numHorizontalLabels = 12
@@ -162,6 +197,7 @@ class ChartFragment : Fragment() {
                     resolution = Constant.RESOLUTION_Y
                 )
                 yearBtn.activateButton(binding)
+                saveStatePeriod = Period.YEAR
             }
         }
     }
@@ -210,8 +246,17 @@ class ChartFragment : Fragment() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable(EXTRA_PERIOD, saveStatePeriod)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val EXTRA_PERIOD = "EXTRA_PERIOD"
     }
 }
