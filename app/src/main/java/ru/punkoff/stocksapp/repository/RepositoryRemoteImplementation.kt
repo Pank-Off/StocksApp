@@ -21,8 +21,8 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private suspend fun getStockByQuery(symbol: String) = api.getStockByQuery(symbol).await()
     private suspend fun getLogo(symbol: String) = api.getLogo(symbol).await()
     private suspend fun getPrice(symbol: String) = api.getPrice(symbol).await()
-    private suspend fun getCandles(symbol: String, from: Long, to: Long) =
-        api.getCandles(symbol = symbol, from = from, to = to).await()
+    private suspend fun getCandles(symbol: String, from: Long, to: Long, resolution: String) =
+        api.getCandles(symbol = symbol, from = from, to = to, resolution = resolution).await()
 
     private suspend fun getNews(symbol: String, from: String, to: String) =
         api.getNews(symbol = symbol, from = from, to = to).await()
@@ -54,9 +54,15 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
         return state
     }
 
-    override suspend fun getCandlesData(ticker: String, from: Long, to: Long): StocksViewState {
+    override suspend fun getCandlesData(
+        ticker: String,
+        from: Long,
+        to: Long,
+        resolution: String
+    ): StocksViewState {
         var state: StocksViewState = StocksViewState.EMPTY
-        val candle = getCandles(ticker, from, to)
+        val candle = getCandles(ticker, from, to, resolution)
+        Log.d(javaClass.simpleName, "Candle $candle")
         if (candle.exist != Constant.NO_DATA) {
             state = StocksViewState.CandleValue(candle)
         }

@@ -36,9 +36,14 @@ class RepositoryImplementation(
             StocksViewState.Error(exc)
         }
 
-    override suspend fun getCandles(ticker: String, from: Long, to: Long): StocksViewState =
+    override suspend fun getCandles(
+        ticker: String,
+        from: Long,
+        to: Long,
+        resolution: String
+    ): StocksViewState =
         try {
-            repositoryRemote.getCandlesData(ticker, from, to)
+            repositoryRemote.getCandlesData(ticker, from, to, resolution)
         } catch (exc: UnknownHostException) {
             StocksViewState.Error(exc)
         } catch (exc: SocketTimeoutException) {

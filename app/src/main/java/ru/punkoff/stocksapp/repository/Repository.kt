@@ -14,7 +14,12 @@ interface Repository {
 
     suspend fun getNews(ticker: String, from: String, to: String): StocksViewState
 
-    suspend fun getCandles(ticker: String, from: Long, to: Long): StocksViewState
+    suspend fun getCandles(
+        ticker: String,
+        from: Long,
+        to: Long,
+        resolution: String
+    ): StocksViewState
 
     suspend fun requestMore(query: String)
 

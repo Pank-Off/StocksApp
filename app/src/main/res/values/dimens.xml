@@ -38,7 +38,7 @@
     <dimen name="chart_change_textSize">16sp</dimen>
     <dimen name="no_data_text_size">32sp</dimen>
     <dimen name="graph_height">260dp</dimen>
-    <dimen name="margin_bottom_graph">50dp</dimen>
+    <dimen name="margin_bottom_graph">30dp</dimen>
     <dimen name="margin_start_graph">-10dp</dimen>
     <dimen name="margin_bottom_buy_btn">100dp</dimen>
     <dimen name="image_news_margin_top">10dp</dimen>
