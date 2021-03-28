@@ -11,7 +11,12 @@ interface RepositoryRemote {
 
     suspend fun getNewsData(ticker: String, from: String, to: String): StocksViewState
 
-    suspend fun getCandlesData(ticker: String, from: Long, to: Long): StocksViewState
+    suspend fun getCandlesData(
+        ticker: String,
+        from: Long,
+        to: Long,
+        resolution: String
+    ): StocksViewState
 
     suspend fun requestMore(query: String)
 

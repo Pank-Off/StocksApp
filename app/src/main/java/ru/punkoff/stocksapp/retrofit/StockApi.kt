@@ -2,7 +2,6 @@ package ru.punkoff.stocksapp.retrofit
 
 import kotlinx.coroutines.Deferred
 import retrofit2.http.GET
-import retrofit2.http.Headers
 import retrofit2.http.Query
 import ru.punkoff.stocksapp.model.*
 import ru.punkoff.stocksapp.utils.Constant
@@ -44,7 +43,7 @@ interface StockApi {
     @GET("stock/candle?")
     fun getCandles(
         @Query("symbol") symbol: String,
-        @Query("resolution") resolution: String = Constant.RESOLUTION,
+        @Query("resolution") resolution: String,
         @Query("from") from: Long,
         @Query("to") to: Long,
         @Query("token") token: String = FINHUB_API

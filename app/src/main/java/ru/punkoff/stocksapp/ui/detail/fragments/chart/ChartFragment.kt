@@ -2,13 +2,13 @@ package ru.punkoff.stocksapp.ui.detail.fragments.chart
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.jjoe64.graphview.DefaultLabelFormatter
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -18,13 +18,14 @@ import ru.punkoff.stocksapp.model.Candle
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
-import java.text.SimpleDateFormat
+import ru.punkoff.stocksapp.utils.activateButton
 import java.util.*
 
 class ChartFragment : Fragment() {
     private val chartViewModel by viewModel<ChartViewModel>()
     private var _binding: ChartFragmentBinding? = null
     private val binding: ChartFragmentBinding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,12 +39,23 @@ class ChartFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
         if (savedInstanceState == null) {
-            val currentTime = System.currentTimeMillis() / 1000
+            with(binding) {
+                graph.gridLabelRenderer.numHorizontalLabels = 7
+                weekBtn.backgroundTintList =
+                    ContextCompat.getColorStateList(weekBtn.context, R.color.black)
+                weekBtn.setTextColor(Color.WHITE)
+            }
+            val currentTime = System.currentTimeMillis()
             chartViewModel.getCandles(
                 symbol =
-                stock.ticker, from = currentTime - Constant.UNIX_DAY_TIME, to = currentTime
+                stock.ticker,
+                from = (currentTime - Constant.UNIX_WEEK_TIME) / 1000,
+                to = currentTime / 1000,
+                resolution = Constant.RESOLUTION_W
             )
         }
+
+        setListenerOnBtns(stock.ticker)
         setInitialData(stock)
         chartViewModel.observeViewState().observe(viewLifecycleOwner) { result ->
             when (result) {
@@ -77,6 +89,8 @@ class ChartFragment : Fragment() {
                 }
                 StocksViewState.Loading -> {
                     with(binding) {
+                        graph.visibility = View.INVISIBLE
+                        noDataTextView.visibility = View.INVISIBLE
                         loadingBar.visibility = View.VISIBLE
                         retryBtn.visibility = View.INVISIBLE
                     }
@@ -89,7 +103,7 @@ class ChartFragment : Fragment() {
                 val currentTime = System.currentTimeMillis() / 1000
                 chartViewModel.getCandles(
                     symbol =
-                    stock.ticker, from = currentTime - Constant.UNIX_DAY_TIME, to = currentTime
+                    stock.ticker, from = currentTime - Constant.UNIX_MONTH_TIME, to = currentTime
                 )
                 retryBtn.visibility = View.GONE
                 loadingBar.visibility = View.VISIBLE
@@ -97,10 +111,64 @@ class ChartFragment : Fragment() {
         }
     }
 
+    private fun setListenerOnBtns(ticker: String) {
+        with(binding) {
+            dayBtn.setOnClickListener {
+                graph.gridLabelRenderer.numHorizontalLabels = 8
+                val currentTime = System.currentTimeMillis()
+                chartViewModel.getCandles(
+                    symbol =
+                    ticker,
+                    from = (currentTime - Constant.UNIX_DAY_TIME) / 1000,
+                    to = currentTime / 1000,
+                    resolution = Constant.RESOLUTION_D
+                )
+                dayBtn.activateButton(binding)
+            }
+
+            weekBtn.setOnClickListener {
+                graph.gridLabelRenderer.numHorizontalLabels = 7
+                val currentTime = System.currentTimeMillis()
+                chartViewModel.getCandles(
+                    symbol =
+                    ticker,
+                    from = (currentTime - Constant.UNIX_WEEK_TIME) / 1000,
+                    to = currentTime / 1000,
+                    resolution = Constant.RESOLUTION_W
+                )
+                weekBtn.activateButton(binding)
+            }
+
+            monthBtn.setOnClickListener {
+                graph.gridLabelRenderer.numHorizontalLabels = 10
+                val currentTime = System.currentTimeMillis()
+                chartViewModel.getCandles(
+                    symbol =
+                    ticker,
+                    from = (currentTime - Constant.UNIX_MONTH_TIME) / 1000,
+                    to = currentTime / 1000,
+                    resolution = Constant.RESOLUTION_M
+                )
+                monthBtn.activateButton(binding)
+            }
+            yearBtn.setOnClickListener {
+                graph.gridLabelRenderer.numHorizontalLabels = 12
+                val currentTime = System.currentTimeMillis()
+                chartViewModel.getCandles(
+                    symbol =
+                    ticker,
+                    from = (currentTime - Constant.UNIT_YEAR_TIME) / 1000,
+                    to = currentTime / 1000,
+                    resolution = Constant.RESOLUTION_Y
+                )
+                yearBtn.activateButton(binding)
+            }
+        }
+    }
+
     private fun plotGraph(candle: Candle) {
         val listOfCandles = mutableListOf<DataPoint>()
-        val simpleDateFormat = SimpleDateFormat("H:mm", Locale.ENGLISH)
-        simpleDateFormat.timeZone = TimeZone.getTimeZone("Europe/Moscow")
+        Log.d(javaClass.simpleName, "Plot $candle")
         for ((index, element) in candle.openPrice.withIndex()) {
             val time = Date(candle.time[index] * 1000)
             listOfCandles.add(DataPoint(time, element))
@@ -108,25 +176,11 @@ class ChartFragment : Fragment() {
         val series = LineGraphSeries(
             listOfCandles.toTypedArray()
         )
-        val dayFormat = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
-        val graphTitleBuilder = StringBuilder(getString(R.string.stock_candles_for))
-        graphTitleBuilder.append(dayFormat.format(listOfCandles[0].x))
         with(binding) {
-            graph.title = graphTitleBuilder.toString()
             series.color = ContextCompat.getColor(requireContext(), R.color.black)
+            graph.removeAllSeries()
             graph.addSeries(series)
-            graph.gridLabelRenderer.numHorizontalLabels = 5
-            graph.gridLabelRenderer.setHumanRounding(false, true)
-            graph.viewport.isXAxisBoundsManual = true
-            graph.gridLabelRenderer.labelFormatter = object : DefaultLabelFormatter() {
-                override fun formatLabel(value: Double, isValueX: Boolean): String {
-                    return if (isValueX) {
-                        simpleDateFormat.format(Date(value.toLong()))
-                    } else {
-                        super.formatLabel(value, isValueX)
-                    }
-                }
-            }
+            graph.gridLabelRenderer.isHorizontalLabelsVisible = false
         }
     }
 
@@ -135,7 +189,7 @@ class ChartFragment : Fragment() {
         currentPriceBuilder.append(stock.price)
         val changeStockBuilder = StringBuilder(stock.difPrice.toString())
         changeStockBuilder.append(" (${stock.stock}%)")
-        val btnTextBuilder = java.lang.StringBuilder("Buy for ")
+        val btnTextBuilder = StringBuilder("Buy for ")
         btnTextBuilder.append(currentPriceBuilder)
         with(binding) {
             price.text = currentPriceBuilder

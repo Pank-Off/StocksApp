@@ -58,10 +58,41 @@
             android:layout_gravity="bottom"
             android:layout_marginStart="@dimen/margin_start_graph"
             android:layout_marginBottom="@dimen/margin_bottom_graph"
-            android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@+id/buy_btn"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/day_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/day_btn"
+            style="@style/CustomChoicePeriodButton"
+            android:text="@string/d"
+            app:layout_constraintBottom_toTopOf="@+id/buy_btn"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/week_btn"
+            style="@style/CustomChoicePeriodButton"
+            android:text="@string/w"
+            app:layout_constraintBottom_toTopOf="@+id/buy_btn"
+            app:layout_constraintEnd_toStartOf="@+id/month_btn"
+            app:layout_constraintStart_toEndOf="@+id/day_btn" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/month_btn"
+            style="@style/CustomChoicePeriodButton"
+            android:text="@string/m"
+            app:layout_constraintBottom_toTopOf="@+id/buy_btn"
+            app:layout_constraintEnd_toStartOf="@id/year_btn"
+            app:layout_constraintStart_toEndOf="@+id/week_btn" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/year_btn"
+            style="@style/CustomChoicePeriodButton"
+            android:text="@string/y"
+            app:layout_constraintBottom_toTopOf="@+id/buy_btn"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buy_btn"
