@@ -78,6 +78,7 @@ class StocksViewModel(
         if (visibleItemCount + lastVisibleItemPosition + VISIBLE_THRESHOLD >= totalItemCount) {
             val immutableQuery = currentQuery.value
             if (immutableQuery != null) {
+                cancelJob()
                 viewModelScope.launch {
                     repository.requestMore(immutableQuery)
                 }
