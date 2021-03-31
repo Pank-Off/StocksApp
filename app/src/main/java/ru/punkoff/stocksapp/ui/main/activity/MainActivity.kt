@@ -52,6 +52,9 @@ class MainActivity : AppCompatActivity() {
                     hideKeyboard(this@MainActivity)
                     textFieldSearch.setStartIconDrawable(android.R.drawable.ic_menu_search)
                     textFieldSearch.clearFocus()
+                }else{
+                    textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
+                    tabLayout.visibility = View.GONE
                 }
             }
         }
@@ -93,6 +96,7 @@ class MainActivity : AppCompatActivity() {
                 is StocksViewState.Loading -> {
                     setEnabledView(false)
                     with(binding) {
+                        textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
                         tabLayout.visibility = View.GONE
                         swipeRefreshLayout.isEnabled = false
                         loadingBar.visibility = View.VISIBLE
@@ -150,7 +154,6 @@ class MainActivity : AppCompatActivity() {
     private fun setEnabledView(isEnabled: Boolean) {
         with(binding) {
             textFieldSearch.isEnabled = isEnabled
-            textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
             viewpager.isUserInputEnabled = isEnabled
             val tabStrip = tabLayout.getChildAt(0) as LinearLayout
 
