@@ -36,5 +36,9 @@ interface Repository {
 
     suspend fun saveCache(stock: CacheStock)
 
+    suspend fun startSocket(symbol: String)
+
+    fun closeSocket()
+
     suspend fun getCat(): CatsViewState
 }

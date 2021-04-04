@@ -1,6 +1,7 @@
 package ru.punkoff.stocksapp.utils
 
 object Constant {
+    const val WEB_SOCKET_URL = "wss://ws.finnhub.io?token=c1fjmln48v6r34ehd6hg"
     const val ALPHAVANTAGE_PROFILE_FUNCTION_PARAMETER = "OVERVIEW"
     const val NEWS_TO_DEFAULT = "2021-03-09"
     const val NEWS_FROM_DEFAULT = "2021-03-01"

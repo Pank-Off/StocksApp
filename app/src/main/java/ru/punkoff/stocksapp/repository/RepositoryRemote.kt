@@ -8,6 +8,10 @@ import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 
 interface RepositoryRemote {
 
+    suspend fun startSocket(symbol: String)
+
+    fun closeSocket()
+
     suspend fun getProfileData(ticker: String): StocksViewState
 
     suspend fun getNewsData(ticker: String, from: String, to: String): StocksViewState

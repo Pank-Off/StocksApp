@@ -40,6 +40,7 @@ class ChartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
+        chartViewModel.startSocket(symbol = stock.ticker)
         if (savedInstanceState == null) {
             with(binding) {
                 graph.gridLabelRenderer.numHorizontalLabels = 7
@@ -98,6 +99,7 @@ class ChartFragment : Fragment() {
                         loadingBar.visibility = View.INVISIBLE
                         retryBtn.visibility = View.INVISIBLE
                     }
+                    Log.d(javaClass.simpleName, result.toString())
                     plotGraph(result.candle)
                 }
                 StocksViewState.EMPTY -> {
@@ -130,6 +132,19 @@ class ChartFragment : Fragment() {
                 is StocksViewState.StockValue -> Unit
             }
         }
+
+        chartViewModel.observeMessage().observe(viewLifecycleOwner) { socketData ->
+            Log.e(javaClass.simpleName, "SocketData: $socketData")
+//            socketData.data?.let { trades ->
+//                val currentPriceBuilder = StringBuilder("$")
+//                currentPriceBuilder.append(stock.price)
+//                val btnTextBuilder = StringBuilder("Buy for ")
+//                btnTextBuilder.append(currentPriceBuilder)
+//                binding.price.text = trades[0].price.toString()
+//                binding.buyBtn.text = btnTextBuilder
+//            }
+        }
+
         with(binding) {
             retryBtn.setOnClickListener {
                 val currentTime = System.currentTimeMillis() / 1000
@@ -246,6 +261,7 @@ class ChartFragment : Fragment() {
         }
     }
 
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putSerializable(EXTRA_PERIOD, saveStatePeriod)
@@ -254,6 +270,7 @@ class ChartFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        chartViewModel.closeSocket()
     }
 
     companion object {

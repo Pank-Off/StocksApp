@@ -14,6 +14,15 @@ class RepositoryImplementation(
     override suspend fun getSearchResultStream(query: String) =
         repositoryRemote.getSearchResultStream(query)
 
+    override suspend fun startSocket(symbol: String) {
+        repositoryRemote.startSocket(symbol)
+    }
+
+
+    override fun closeSocket() {
+        repositoryRemote.closeSocket()
+    }
+
     override fun setCache(stocks: List<Stock>) {
         repositoryRemote.setCache(stocks)
     }

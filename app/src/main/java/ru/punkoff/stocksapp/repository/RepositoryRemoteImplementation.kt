@@ -3,10 +3,16 @@ package ru.punkoff.stocksapp.repository
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.WebSocket
+import org.json.JSONObject
 import retrofit2.HttpException
 import ru.punkoff.stocksapp.model.Stock
-import ru.punkoff.stocksapp.retrofit.StockApi
 import ru.punkoff.stocksapp.model.StockSymbol
+import ru.punkoff.stocksapp.retrofit.FinWebSocketListener
+import ru.punkoff.stocksapp.retrofit.FinWebSocketListener.Companion.NORMAL_CLOSURE_STATUS
+import ru.punkoff.stocksapp.retrofit.StockApi
 import ru.punkoff.stocksapp.ui.detail.fragments.cats.CatsViewState
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.PaginationViewStateResult
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
@@ -16,7 +22,12 @@ import kotlin.math.floor
 
 private const val FINHUB_STARTING_PAGE_INDEX = 1
 
-class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemote {
+class RepositoryRemoteImplementation(
+    private val api: StockApi,
+    private val request: Request,
+    private val listener: FinWebSocketListener
+) :
+    RepositoryRemote {
     private var stocks = mutableListOf<Stock>()
     private suspend fun getStocks(exchange: String) = api.getStocks(exchange).await()
     private suspend fun getStockByQuery(symbol: String) = api.getStockByQuery(symbol).await()
@@ -33,8 +44,26 @@ class RepositoryRemoteImplementation(private val api: StockApi) : RepositoryRemo
     private var isRequestInProgress = false
 
     private var lastRequestedPage = FINHUB_STARTING_PAGE_INDEX
+
+    private lateinit var webSocket: WebSocket
     override fun setCache(stocks: List<Stock>) {
         this.stocks = stocks as MutableList<Stock>
+    }
+
+    override suspend fun startSocket(symbol: String) {
+        val jsonObject = JSONObject()
+        jsonObject.put("type", "subscribe")
+        jsonObject.put("symbol", symbol)
+        val client = OkHttpClient()
+        webSocket = client.newWebSocket(request, listener)
+        webSocket.send(jsonObject.toString())
+        Log.e("WebSockets", jsonObject.toString())
+        webSocket.send(jsonObject.toString())
+        client.dispatcher.executorService.shutdown()
+    }
+
+    override fun closeSocket() {
+        webSocket.close(NORMAL_CLOSURE_STATUS, null)
     }
 
     override suspend fun getProfileData(ticker: String): StocksViewState {
