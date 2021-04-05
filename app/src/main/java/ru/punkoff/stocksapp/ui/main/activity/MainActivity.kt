@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initSharedPreferences()
-
         setOptionsForSearchView()
         supportActionBar?.setDisplayShowTitleEnabled(false)
         val pagerAdapter = MainPagerAdapter(this)
@@ -264,6 +263,14 @@ class MainActivity : AppCompatActivity() {
         mSettings.edit().apply {
             remove(Constant.RECENT_SEARCH_LIST).apply()
             putStringSet(Constant.RECENT_SEARCH_LIST, recentSearchAdapter.getData()).apply()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (binding.swipeRefreshLayout.isRefreshing) {
+            setEnabledView(false)
+            mAboutDataListener.onDataLoading()
         }
     }
 }
