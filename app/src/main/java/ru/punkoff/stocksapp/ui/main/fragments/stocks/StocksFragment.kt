@@ -85,6 +85,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
                         loadingBar.visibility = View.INVISIBLE
                     }
                     StocksViewState.Loading -> {
+                        retryBtn.visibility = View.GONE
                         loadingBar.visibility = View.VISIBLE
                     }
                     StocksViewState.EMPTY -> Unit
@@ -182,6 +183,7 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
 
     override fun onDataLoading() {
         adapter.setEnabled(false)
+        binding.retryBtn.visibility = View.GONE
     }
 
     override fun onDataChange(stock: Stock) {
