@@ -23,7 +23,12 @@ class ChartViewModel(
     private val socketLiveData = MediatorLiveData<SocketData>()
 
     private val msgLiveData = finWebSocketListener.observeMessage()
-    fun getCandles(symbol: String, from: Long, to: Long, resolution: String = Constant.RESOLUTION_D) {
+    fun getCandles(
+        symbol: String,
+        from: Long,
+        to: Long,
+        resolution: String = Constant.RESOLUTION_D
+    ) {
         cancelJob()
         stocksLiveData.value = StocksViewState.Loading
         viewModelCoroutineScope.launch(Dispatchers.IO) {

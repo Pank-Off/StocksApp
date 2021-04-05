@@ -11,6 +11,8 @@ interface Repository {
 
     fun setCache(stocks: List<Stock>)
 
+    suspend fun updatePrice(): StocksViewState
+
     suspend fun getProfile(ticker: String): StocksViewState
 
     suspend fun getNews(ticker: String, from: String, to: String): StocksViewState

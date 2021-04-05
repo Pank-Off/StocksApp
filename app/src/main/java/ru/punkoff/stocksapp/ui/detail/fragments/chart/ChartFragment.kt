@@ -21,6 +21,7 @@ import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.utils.Period
 import ru.punkoff.stocksapp.utils.activateButton
 import java.util.*
+import kotlin.math.floor
 
 class ChartFragment : Fragment() {
     private val chartViewModel by viewModel<ChartViewModel>()
@@ -135,14 +136,36 @@ class ChartFragment : Fragment() {
 
         chartViewModel.observeMessage().observe(viewLifecycleOwner) { socketData ->
             Log.e(javaClass.simpleName, "SocketData: $socketData")
-//            socketData.data?.let { trades ->
-//                val currentPriceBuilder = StringBuilder("$")
-//                currentPriceBuilder.append(stock.price)
-//                val btnTextBuilder = StringBuilder("Buy for ")
-//                btnTextBuilder.append(currentPriceBuilder)
-//                binding.price.text = trades[0].price.toString()
-//                binding.buyBtn.text = btnTextBuilder
-//            }
+            socketData.data?.let { trades ->
+                if (stock.ticker == trades[0].symbol) {
+                    val previousPrice = binding.price.text.toString()
+                    val trade = trades[0].price.toString()
+                    val diffPrice = trade.toDouble() - previousPrice.substringAfter('$').toDouble()
+                    val percent = (diffPrice) / trade.toDouble() * 100
+                    val currentPriceBuilder = StringBuilder("$")
+                    currentPriceBuilder.append(trade)
+                    val btnTextBuilder = StringBuilder("Buy for $")
+                    btnTextBuilder.append(trade)
+                    val changeStockBuilder =
+                        StringBuilder((floor(diffPrice * 100) / 100).toString())
+                    changeStockBuilder.append(" (${floor(percent * 100) / 100}%)")
+                    with(binding) {
+                        price.text = currentPriceBuilder
+                        if (diffPrice < 0) {
+                            changeStock.setTextColor(Color.RED)
+                        } else {
+                            changeStock.setTextColor(
+                                ContextCompat.getColor(
+                                    changeStock.context,
+                                    R.color.green
+                                )
+                            )
+                        }
+                        changeStock.text = changeStockBuilder
+                        buyBtn.text = btnTextBuilder
+                    }
+                }
+            }
         }
 
         with(binding) {

@@ -29,6 +29,7 @@ interface RepositoryRemote {
 
     fun setCache(stocks: List<Stock>)
 
+    suspend fun updatePrice(): StocksViewState
     suspend fun getData(): StocksViewState
 
     suspend fun getDataBySymbol(symbol: String): StocksViewState

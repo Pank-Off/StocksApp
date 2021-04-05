@@ -33,6 +33,7 @@ class FinWebSocketListener : WebSocketListener() {
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
         Log.e("WebSockets", "Failure : $t")
+        webSocket.close(NORMAL_CLOSURE_STATUS, response?.toString())
     }
 
     companion object {

@@ -45,9 +45,45 @@ class RepositoryRemoteImplementation(
 
     private var lastRequestedPage = FINHUB_STARTING_PAGE_INDEX
 
-    private lateinit var webSocket: WebSocket
+    private var webSocket: WebSocket? = null
     override fun setCache(stocks: List<Stock>) {
         this.stocks = stocks as MutableList<Stock>
+    }
+
+    override suspend fun updatePrice(): StocksViewState {
+        val updateStocks = mutableListOf<Stock>()
+
+        val stocksSize = stocks.size
+        for (index in 0 until stocksSize) {
+            try {
+                val stock = stocks[index]
+                val price = getPrice(stock.ticker)
+                var percent = (price.currentPrice - price.previousPrice) / price.currentPrice * 100
+                if (percent.isNaN()) {
+                    percent = 0.0
+                }
+                updateStocks.add(
+                    Stock(
+                        stock.ticker,
+                        stock.name,
+                        floor(price.currentPrice * 100) / 100,
+                        floor((price.currentPrice - price.previousPrice) * 100) / 100,
+                        floor(percent * 100) / 100,
+                        stock.logo,
+                        stock.webUrl,
+                    )
+                )
+                Log.d(javaClass.simpleName, "Price: $price")
+            } catch (exc: HttpException) {
+                Log.e(javaClass.simpleName, exc.stackTraceToString())
+            } catch (exc: ConcurrentModificationException) {
+                Log.e(javaClass.simpleName, exc.stackTraceToString())
+            }
+        }
+
+        stocks = updateStocks
+        Log.d(javaClass.simpleName, "UpdateStocks: $stocks")
+        return StocksViewState.StockValue(stocks)
     }
 
     override suspend fun startSocket(symbol: String) {
@@ -56,14 +92,16 @@ class RepositoryRemoteImplementation(
         jsonObject.put("symbol", symbol)
         val client = OkHttpClient()
         webSocket = client.newWebSocket(request, listener)
-        webSocket.send(jsonObject.toString())
+        webSocket?.send(jsonObject.toString())
         Log.e("WebSockets", jsonObject.toString())
-        webSocket.send(jsonObject.toString())
+        webSocket?.send(jsonObject.toString())
         client.dispatcher.executorService.shutdown()
     }
 
     override fun closeSocket() {
-        webSocket.close(NORMAL_CLOSURE_STATUS, null)
+        if (webSocket != null) {
+            webSocket?.close(NORMAL_CLOSURE_STATUS, null)
+        }
     }
 
     override suspend fun getProfileData(ticker: String): StocksViewState {
