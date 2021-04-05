@@ -58,7 +58,7 @@
             android:layout_gravity="bottom"
             android:layout_marginStart="@dimen/margin_start_graph"
             android:layout_marginBottom="@dimen/margin_bottom_graph"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toTopOf="@+id/day_btn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -92,7 +92,7 @@
             style="@style/CustomChoicePeriodButton"
             android:text="@string/y"
             app:layout_constraintBottom_toTopOf="@+id/buy_btn"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buy_btn"

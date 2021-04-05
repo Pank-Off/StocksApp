@@ -177,6 +177,8 @@ class ChartFragment : Fragment() {
                 )
                 retryBtn.visibility = View.GONE
                 loadingBar.visibility = View.VISIBLE
+                chartViewModel.closeSocket()
+                chartViewModel.startSocket(stock.ticker)
             }
         }
     }

@@ -36,15 +36,16 @@ class StocksViewModel(
             if (stocks.isNotEmpty()) {
                 stocksLiveData.value = StocksViewState.StockValue(stocks)
             } else {
-                getRequest()
+                getRequest(null)
             }
         }
     }
 
-    private fun getRequest() {
+    fun getRequest(symbol: String?) {
+        stocksLiveData.postValue(StocksViewState.Loading)
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stocksLiveData.postValue(repository.getRequest())
+            stocksLiveData.postValue(repository.getRequest(symbol))
         }
     }
 
