@@ -92,9 +92,13 @@ class StocksFragment : Fragment(), OnAboutDataReceivedListener {
             }
 
             retryBtn.setOnClickListener {
-                retryBtn.visibility = View.GONE
-                paginationLoadingBar.visibility = View.VISIBLE
-                stocksViewModel.searchStocks(Constant.EXCHANGE)
+                binding.retryBtn.visibility = View.GONE
+                binding.paginationLoadingBar.visibility = View.VISIBLE
+                if (searchView.text?.isNotEmpty() == true) {
+                    stocksViewModel.getRequest(searchView.text.toString())
+                } else {
+                    stocksViewModel.searchStocks(Constant.EXCHANGE)
+                }
             }
         }
     }
