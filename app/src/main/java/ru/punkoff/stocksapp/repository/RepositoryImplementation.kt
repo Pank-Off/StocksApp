@@ -14,9 +14,26 @@ class RepositoryImplementation(
     override suspend fun getSearchResultStream(query: String) =
         repositoryRemote.getSearchResultStream(query)
 
+    override suspend fun startSocket(symbol: String) {
+        repositoryRemote.startSocket(symbol)
+    }
+
+    override fun closeSocket() {
+        repositoryRemote.closeSocket()
+    }
+
     override fun setCache(stocks: List<Stock>) {
         repositoryRemote.setCache(stocks)
     }
+
+    override suspend fun updatePrice(): StocksViewState =
+        try {
+            repositoryRemote.updatePrice()
+        } catch (exc: UnknownHostException) {
+            StocksViewState.Error(exc)
+        } catch (exc: SocketTimeoutException) {
+            StocksViewState.Error(exc)
+        }
 
     override suspend fun getProfile(ticker: String): StocksViewState =
         try {

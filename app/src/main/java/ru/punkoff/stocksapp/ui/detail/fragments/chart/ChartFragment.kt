@@ -21,6 +21,7 @@ import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.utils.Period
 import ru.punkoff.stocksapp.utils.activateButton
 import java.util.*
+import kotlin.math.floor
 
 class ChartFragment : Fragment() {
     private val chartViewModel by viewModel<ChartViewModel>()
@@ -40,6 +41,7 @@ class ChartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
+        chartViewModel.startSocket(symbol = stock.ticker)
         if (savedInstanceState == null) {
             with(binding) {
                 graph.gridLabelRenderer.numHorizontalLabels = 7
@@ -98,6 +100,7 @@ class ChartFragment : Fragment() {
                         loadingBar.visibility = View.INVISIBLE
                         retryBtn.visibility = View.INVISIBLE
                     }
+                    Log.d(javaClass.simpleName, result.toString())
                     plotGraph(result.candle)
                 }
                 StocksViewState.EMPTY -> {
@@ -130,6 +133,41 @@ class ChartFragment : Fragment() {
                 is StocksViewState.StockValue -> Unit
             }
         }
+
+        chartViewModel.observeMessage().observe(viewLifecycleOwner) { socketData ->
+            Log.e(javaClass.simpleName, "SocketData: $socketData")
+            socketData.data?.let { trades ->
+                if (stock.ticker == trades[0].symbol) {
+                    val previousPrice = binding.price.text.toString()
+                    val trade = trades[0].price.toString()
+                    val diffPrice = trade.toDouble() - previousPrice.substringAfter('$').toDouble()
+                    val percent = (diffPrice) / trade.toDouble() * 100
+                    val currentPriceBuilder = StringBuilder("$")
+                    currentPriceBuilder.append(trade)
+                    val btnTextBuilder = StringBuilder("Buy for $")
+                    btnTextBuilder.append(trade)
+                    val changeStockBuilder =
+                        StringBuilder((floor(diffPrice * 100) / 100).toString())
+                    changeStockBuilder.append(" (${floor(percent * 100) / 100}%)")
+                    with(binding) {
+                        price.text = currentPriceBuilder
+                        if (diffPrice < 0) {
+                            changeStock.setTextColor(Color.RED)
+                        } else {
+                            changeStock.setTextColor(
+                                ContextCompat.getColor(
+                                    changeStock.context,
+                                    R.color.green
+                                )
+                            )
+                        }
+                        changeStock.text = changeStockBuilder
+                        buyBtn.text = btnTextBuilder
+                    }
+                }
+            }
+        }
+
         with(binding) {
             retryBtn.setOnClickListener {
                 val currentTime = System.currentTimeMillis() / 1000
@@ -246,6 +284,7 @@ class ChartFragment : Fragment() {
         }
     }
 
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putSerializable(EXTRA_PERIOD, saveStatePeriod)
@@ -254,6 +293,7 @@ class ChartFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        chartViewModel.closeSocket()
     }
 
     companion object {

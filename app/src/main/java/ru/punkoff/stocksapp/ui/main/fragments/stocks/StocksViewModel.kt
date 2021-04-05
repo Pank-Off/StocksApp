@@ -79,7 +79,7 @@ class StocksViewModel(
             val immutableQuery = currentQuery.value
             if (immutableQuery != null) {
                 cancelJob()
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     repository.requestMore(immutableQuery)
                 }
             }

@@ -13,10 +13,10 @@ class ActivityViewModel(
     BaseViewModel() {
     private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
 
-    fun getRequest() {
+    fun updatePrice() {
         cancelJob()
         viewModelCoroutineScope.launch(Dispatchers.IO) {
-            stocksLiveData.postValue(repository.getRequest(null))
+            stocksLiveData.postValue(repository.updatePrice())
         }
     }
 

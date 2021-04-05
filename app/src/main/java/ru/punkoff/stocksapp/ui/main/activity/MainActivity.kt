@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                     hideKeyboard(this@MainActivity)
                     textFieldSearch.setStartIconDrawable(android.R.drawable.ic_menu_search)
                     textFieldSearch.clearFocus()
-                }else{
+                } else {
                     textFieldSearch.setStartIconDrawable(R.drawable.ic_arrow_arrows_back)
                     tabLayout.visibility = View.GONE
                 }
@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
             swipeRefreshLayout.setOnRefreshListener {
                 setEnabledView(false)
                 mAboutDataListener.onDataLoading()
-                mainViewModel.getRequest()
+                mainViewModel.updatePrice()
             }
             viewpager.adapter = pagerAdapter
             TabLayoutMediator(tabLayout, viewpager) { tab, position ->

@@ -1,9 +1,11 @@
 package ru.punkoff.stocksapp.di
 
 import androidx.room.Room
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.bind
@@ -14,6 +16,7 @@ import ru.punkoff.stocksapp.utils.Constant
 import ru.punkoff.stocksapp.retrofit.StockApi
 import ru.punkoff.stocksapp.room.AppDatabase
 import ru.punkoff.stocksapp.repository.*
+import ru.punkoff.stocksapp.retrofit.FinWebSocketListener
 import ru.punkoff.stocksapp.ui.detail.fragments.chart.ChartViewModel
 import ru.punkoff.stocksapp.ui.detail.activity.DetailViewModel
 import ru.punkoff.stocksapp.ui.detail.fragments.cats.CatsViewModel
@@ -32,7 +35,7 @@ object DependencyGraph {
                 RepositoryImplementation(get(), get())
             } bind Repository::class
             single {
-                RepositoryRemoteImplementation(get())
+                RepositoryRemoteImplementation(get(), get(), get())
             } bind RepositoryRemote::class
             single {
                 RepositoryLocalImplementation(get())
@@ -74,6 +77,12 @@ object DependencyGraph {
                     .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
                     .build()
             }
+
+            single {
+                Request.Builder().url(Constant.WEB_SOCKET_URL).build()
+            }
+
+            single { FinWebSocketListener() }
         }
     }
     private val viewModelModule by lazy {
@@ -93,7 +102,7 @@ object DependencyGraph {
             }
 
             viewModel {
-                ChartViewModel(get())
+                ChartViewModel(get(), get(), get())
             }
 
             viewModel {
