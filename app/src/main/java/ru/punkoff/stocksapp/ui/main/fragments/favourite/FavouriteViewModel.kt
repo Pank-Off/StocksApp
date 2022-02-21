@@ -1,8 +1,10 @@
 package ru.punkoff.stocksapp.ui.main.fragments.favourite
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.room.StockDao
@@ -10,13 +12,18 @@ import ru.punkoff.stocksapp.ui.base.BaseViewModel
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 
 class FavouriteViewModel(private val stockDao: StockDao) : BaseViewModel() {
-    private val stocksLiveData = MutableLiveData<StocksViewState>(StocksViewState.EMPTY)
+    private val _stocksFlow = MutableStateFlow<StocksViewState>(StocksViewState.EMPTY)
+    val stocksFlow = _stocksFlow.stateIn(
+        scope = viewModelCoroutineScope,
+        initialValue = StocksViewState.Loading,
+        started = SharingStarted.WhileSubscribed(5000)
+    )
 
-    fun getStocksFromDB() {
-        stocksLiveData.postValue(StocksViewState.Loading)
-        viewModelCoroutineScope.launch(Dispatchers.IO) {
-            Log.d(javaClass.simpleName, "From room: ${stockDao.getStocks()}")
-            stocksLiveData.postValue(StocksViewState.StockValue(stockDao.getStocks().reversed()))
+    init {
+        viewModelCoroutineScope.launch {
+            stockDao.getStocks().collect {
+                _stocksFlow.value = StocksViewState.StockValue(it.reversed())
+            }
         }
     }
 
@@ -31,6 +38,4 @@ class FavouriteViewModel(private val stockDao: StockDao) : BaseViewModel() {
             stockDao.delete(stock.ticker)
         }
     }
-
-    fun observeViewState() = stocksLiveData
 }

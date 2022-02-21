@@ -9,9 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import ru.punkoff.stocksapp.R
 import ru.punkoff.stocksapp.databinding.FavouriteFragmentBinding
@@ -66,15 +71,19 @@ class FavouriteFragment : Fragment() {
         with(binding) {
             listStocks.adapter = adapter
             listStocks.layoutManager = LinearLayoutManager(context)
-            favouriteViewModel.observeViewState().observe(viewLifecycleOwner) {
-                when (it) {
-                    is StocksViewState.StockValue -> {
-                        adapter.setData(it.stocks)
-                        adapter.filter.filter(searchView.text)
-                        loadingBar.visibility = View.INVISIBLE
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    favouriteViewModel.stocksFlow.collect {
+                        when (it) {
+                            is StocksViewState.StockValue -> {
+                                adapter.setData(it.stocks)
+                                adapter.filter.filter(searchView.text)
+                                loadingBar.visibility = View.INVISIBLE
+                            }
+                            is StocksViewState.Loading -> loadingBar.visibility = View.VISIBLE
+                            is StocksViewState.EMPTY -> Unit
+                        }
                     }
-                    is StocksViewState.Loading -> loadingBar.visibility = View.VISIBLE
-                    is StocksViewState.EMPTY -> Unit
                 }
             }
         }
@@ -109,7 +118,6 @@ class FavouriteFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        favouriteViewModel.getStocksFromDB()
         swipeRefreshLayout.isEnabled = false
     }
 

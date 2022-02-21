@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import ru.punkoff.stocksapp.model.CacheStock
 import ru.punkoff.stocksapp.model.Stock
 
@@ -17,7 +18,7 @@ interface StockDao {
     fun delete(ticker: String)
 
     @Query("SELECT * FROM table_favourite_stocks")
-    fun getStocks(): List<Stock>
+    fun getStocks(): Flow<List<Stock>>
 
     @Query("SELECT * FROM table_cache_stocks")
     fun getCacheStocks(): CacheStock
