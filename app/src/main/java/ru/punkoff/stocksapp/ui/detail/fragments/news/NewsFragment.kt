@@ -21,6 +21,7 @@ import ru.punkoff.stocksapp.ui.detail.fragments.news.adapter.NewsAdapter
 import ru.punkoff.stocksapp.ui.detail.fragments.news.adapter.OnNewsClickListener
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
+import ru.punkoff.stocksapp.utils.FragmentArgumentDelegate
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,6 +31,9 @@ class NewsFragment : Fragment() {
 
     private val newsViewModel by viewModel<NewsViewModel>()
     private val newsAdapter = NewsAdapter()
+
+    val stock by FragmentArgumentDelegate<Stock>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,7 +44,6 @@ class NewsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
         if (savedInstanceState == null) {
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
             val currentTime = System.currentTimeMillis()

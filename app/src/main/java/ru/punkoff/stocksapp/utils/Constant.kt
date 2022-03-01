@@ -11,7 +11,7 @@ object Constant {
     const val RESOLUTION_M = "60"
     const val RESOLUTION_Y = "D"
     const val NO_DATA = "no_data"
-    const val EXTRA_STOCK = "EXTRA_STOCK"
+    const val EXTRA_STOCK = "stock"
     const val BASE_URL = "https://finnhub.io/api/v1/"
     const val EXCHANGE = "US"
     const val RECENT_SEARCH_LIST = "RECENT_SEARCH_LIST"

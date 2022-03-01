@@ -18,6 +18,7 @@ import ru.punkoff.stocksapp.model.Candle
 import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.utils.Constant
+import ru.punkoff.stocksapp.utils.FragmentArgumentDelegate
 import ru.punkoff.stocksapp.utils.Period
 import ru.punkoff.stocksapp.utils.activateButton
 import java.util.*
@@ -27,6 +28,8 @@ class ChartFragment : Fragment() {
     private val chartViewModel by viewModel<ChartViewModel>()
     private var _binding: ChartFragmentBinding? = null
     private val binding: ChartFragmentBinding get() = _binding!!
+
+    private val stock by FragmentArgumentDelegate<Stock>()
 
     private lateinit var saveStatePeriod: Period
     override fun onCreateView(
@@ -40,7 +43,6 @@ class ChartFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
         chartViewModel.startSocket(symbol = stock.ticker)
         if (savedInstanceState == null) {
             with(binding) {

@@ -15,12 +15,14 @@ import ru.punkoff.stocksapp.model.Stock
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.ui.web.WebActivity
 import ru.punkoff.stocksapp.utils.Constant
+import ru.punkoff.stocksapp.utils.FragmentArgumentDelegate
 import ru.punkoff.stocksapp.utils.PicassoLoader
 
 class SummaryFragment : Fragment() {
     private var _binding: SummaryFragmentBinding? = null
     private val binding: SummaryFragmentBinding get() = _binding!!
 
+    private val stock by FragmentArgumentDelegate<Stock>()
     private val summaryViewModel by viewModel<SummaryViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,7 +36,6 @@ class SummaryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val stock = arguments?.get(Constant.EXTRA_STOCK) as Stock
         setInitialData(stock)
         if (savedInstanceState == null) {
             summaryViewModel.getProfile(stock.ticker)
