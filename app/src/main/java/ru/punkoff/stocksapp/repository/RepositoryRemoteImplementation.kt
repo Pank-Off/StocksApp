@@ -1,8 +1,7 @@
 package ru.punkoff.stocksapp.repository
 
 import android.util.Log
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
@@ -29,8 +28,8 @@ class RepositoryRemoteImplementation(
 ) :
     RepositoryRemote {
     private var stocks = mutableListOf<Stock>()
-    private suspend fun getStocks(exchange: String) = api.getStocks(exchange).await()
-    private suspend fun getStockByQuery(symbol: String) = api.getStockByQuery(symbol).await()
+    private suspend fun getStocks(exchange: String) = api.getStocks(exchange)
+    private suspend fun getStockByQuery(symbol: String) = api.getStockByQuery(symbol)
     private suspend fun getLogo(symbol: String) = api.getLogo(symbol).await()
     private suspend fun getPrice(symbol: String) = api.getPrice(symbol).await()
     private suspend fun getCandles(symbol: String, from: Long, to: Long, resolution: String) =
@@ -155,16 +154,14 @@ class RepositoryRemoteImplementation(
         isRequestInProgress = true
         var successful = false
         try {
-            val stocksSymbol =
-                api.searchPagination(query, lastRequestedPage, NETWORK_PAGE_SIZE)
-                    .subList(START, END)
-            stocksSymbol.forEach {
+            api.searchPagination(query, lastRequestedPage, NETWORK_PAGE_SIZE).take(2).onEach {
                 try {
                     getDataForStock(it, stocks.size)
                 } catch (exc: HttpException) {
                     Log.e(javaClass.simpleName, exc.stackTraceToString())
                 }
             }
+
             Log.d(javaClass.simpleName, "Stocks: ${stocks.size}")
             searchResults.emit(PaginationViewStateResult.Success(stocks))
             successful = true
@@ -179,15 +176,13 @@ class RepositoryRemoteImplementation(
 
     override suspend fun getData(): StocksViewState {
         var state: StocksViewState = StocksViewState.EMPTY
-        val stocksRequest = getStocks(Constant.EXCHANGE).subList(START, END)
-        stocksRequest.forEach {
-            try {
+        getStocks(Constant.EXCHANGE).take(2).onEach {
+            runCatching {
                 getDataForStock(it)
-            } catch (exc: HttpException) {
+            }.onFailure { exc ->
                 Log.e(javaClass.simpleName, exc.stackTraceToString())
             }
         }
-
         Log.d(javaClass.simpleName, "Stocks: ${stocks.size}")
         if (stocks.isNotEmpty()) {
             state = StocksViewState.StockValue(stocks)
@@ -222,8 +217,7 @@ class RepositoryRemoteImplementation(
     override suspend fun getDataBySymbol(symbol: String): StocksViewState {
         Log.d(javaClass.simpleName, "Class: $this")
         var state: StocksViewState = StocksViewState.EMPTY
-        val stocksRequest = getStockByQuery(symbol)
-        stocksRequest.result.forEach {
+        getStockByQuery(symbol).single().result.forEach {
             try {
                 getDataForStock(it, 0)
             } catch (exc: HttpException) {
@@ -244,8 +238,6 @@ class RepositoryRemoteImplementation(
     }
 
     companion object {
-        private const val START = 0
-        private const val END = 2
         private const val NETWORK_PAGE_SIZE = 50
     }
 }

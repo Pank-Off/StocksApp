@@ -1,6 +1,7 @@
 package ru.punkoff.stocksapp.retrofit
 
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
 import retrofit2.http.GET
 import retrofit2.http.Query
 import ru.punkoff.stocksapp.model.*
@@ -17,10 +18,10 @@ interface StockApi {
     ): List<StockSymbol>
 
     @GET("stock/symbol?")
-    fun getStocks(
+    suspend fun getStocks(
         @Query("exchange") exchange: String,
         @Query("token") token: String = FINHUB_API
-    ): Deferred<List<StockSymbol>>
+    ): List<StockSymbol>
 
     @GET("stock/profile2?")
     fun getLogo(
@@ -35,10 +36,10 @@ interface StockApi {
     ): Deferred<StockPrice>
 
     @GET("search?")
-    fun getStockByQuery(
+    suspend fun getStockByQuery(
         @Query("q") symbol: String,
         @Query("token") token: String = FINHUB_API
-    ): Deferred<StockLookup>
+    ): Flow<StockLookup>
 
     @GET("stock/candle?")
     fun getCandles(

@@ -20,7 +20,7 @@ class FavouriteViewModel(private val stockDao: StockDao) : BaseViewModel() {
     )
 
     init {
-        viewModelCoroutineScope.launch {
+        viewModelCoroutineScope.launch(Dispatchers.IO) {
             stockDao.getStocks().collect {
                 _stocksFlow.value = StocksViewState.StockValue(it.reversed())
             }

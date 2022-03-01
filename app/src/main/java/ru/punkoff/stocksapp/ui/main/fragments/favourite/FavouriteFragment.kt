@@ -27,6 +27,7 @@ import ru.punkoff.stocksapp.ui.main.fragments.stocks.StocksViewState
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.adapter.OnStarClickListener
 import ru.punkoff.stocksapp.ui.main.fragments.stocks.adapter.StocksAdapter
 import ru.punkoff.stocksapp.utils.Constant
+import ru.punkoff.stocksapp.utils.addRepeatingJob
 
 class FavouriteFragment : Fragment() {
 
@@ -71,18 +72,17 @@ class FavouriteFragment : Fragment() {
         with(binding) {
             listStocks.adapter = adapter
             listStocks.layoutManager = LinearLayoutManager(context)
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    favouriteViewModel.stocksFlow.collect {
-                        when (it) {
-                            is StocksViewState.StockValue -> {
-                                adapter.setData(it.stocks)
-                                adapter.filter.filter(searchView.text)
-                                loadingBar.visibility = View.INVISIBLE
-                            }
-                            is StocksViewState.Loading -> loadingBar.visibility = View.VISIBLE
-                            is StocksViewState.EMPTY -> Unit
+
+            viewLifecycleOwner.addRepeatingJob(Lifecycle.State.STARTED) {
+                favouriteViewModel.stocksFlow.collect {
+                    when (it) {
+                        is StocksViewState.StockValue -> {
+                            adapter.setData(it.stocks)
+                            adapter.filter.filter(searchView.text)
+                            loadingBar.visibility = View.INVISIBLE
                         }
+                        is StocksViewState.Loading -> loadingBar.visibility = View.VISIBLE
+                        is StocksViewState.EMPTY -> Unit
                     }
                 }
             }
